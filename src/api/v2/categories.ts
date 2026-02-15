@@ -4,7 +4,6 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Category } from "../../schemas/category.js";
-import { PaginatedCategoriesSchema } from "../../schemas/paginated.js";
 import { Category as CategorySchema } from "../../schemas/category.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne, createOne, updateOne, deleteOne } from "./request.js";
@@ -21,7 +20,7 @@ export const listCategories = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Category, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, classCategoriesPath(classId), PaginatedCategoriesSchema, pagination);
+  createPaginatedStream(config, httpClient, classCategoriesPath(classId), CategorySchema, pagination);
 
 export const fetchCategory = (
   config: EdlinkConfigData,

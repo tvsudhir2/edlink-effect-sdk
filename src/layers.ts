@@ -1,7 +1,9 @@
 import { Layer } from "effect";
 import { FetchHttpClient } from "@effect/platform";
-import { EdlinkConfig } from "./config.js";
+import { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 import { EdlinkClientLive } from "./client.js";
+import { EdlinkUserClientLive } from "./user-client.js";
+import { InMemoryTokenStoreLive } from "./token-store.js";
 
 // ---------------------------------------------------------------------------
 // Composed layer — single `Effect.provide(EdlinkLive)` in consumer code
@@ -19,4 +21,27 @@ import { EdlinkClientLive } from "./client.js";
 export const EdlinkLive = EdlinkClientLive.pipe(
   Layer.provide(EdlinkConfig.Live),
   Layer.provide(FetchHttpClient.layer),
+);
+
+// ---------------------------------------------------------------------------
+// User API layer — OAuth + per-user token management
+// ---------------------------------------------------------------------------
+
+/**
+ * Fully-wired layer that provides `EdlinkUserClient` with in-memory token
+ * storage. Suitable for development and single-process deployments.
+ *
+ * For production, provide your own `TokenStore` layer:
+ * ```ts
+ * const MyUserLive = EdlinkUserClientLive.pipe(
+ *   Layer.provide(EdlinkUserConfig.Live),
+ *   Layer.provide(FetchHttpClient.layer),
+ *   Layer.provide(MyRedisTokenStore),
+ * );
+ * ```
+ */
+export const EdlinkUserLive = EdlinkUserClientLive.pipe(
+  Layer.provide(EdlinkUserConfig.Live),
+  Layer.provide(FetchHttpClient.layer),
+  Layer.provide(InMemoryTokenStoreLive),
 );

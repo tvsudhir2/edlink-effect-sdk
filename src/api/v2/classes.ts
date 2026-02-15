@@ -7,13 +7,10 @@ import type { EdlinkClass } from "../../schemas/class.js";
 import type { Section } from "../../schemas/section.js";
 import type { Enrollment } from "../../schemas/enrollment.js";
 import type { Person } from "../../schemas/person.js";
-import {
-  PaginatedClassesSchema,
-  PaginatedSectionsSchema,
-  PaginatedEnrollmentsSchema,
-  PaginatedPeopleSchema,
-} from "../../schemas/paginated.js";
 import { EdlinkClass as ClassSchema } from "../../schemas/class.js";
+import { Section as SectionSchema } from "../../schemas/section.js";
+import { Enrollment as EnrollmentSchema } from "../../schemas/enrollment.js";
+import { Person as PersonSchema } from "../../schemas/person.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
 
@@ -24,7 +21,7 @@ export const listClasses = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<EdlinkClass, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedClassesSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, ClassSchema, pagination);
 
 export const fetchClass = (
   config: EdlinkConfigData,
@@ -39,7 +36,7 @@ export const listClassSections = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Section, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${classId}/sections`, PaginatedSectionsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${classId}/sections`, SectionSchema, pagination);
 
 export const listClassEnrollments = (
   config: EdlinkConfigData,
@@ -47,7 +44,7 @@ export const listClassEnrollments = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Enrollment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${classId}/enrollments`, PaginatedEnrollmentsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${classId}/enrollments`, EnrollmentSchema, pagination);
 
 export const listClassPeople = (
   config: EdlinkConfigData,
@@ -55,7 +52,7 @@ export const listClassPeople = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${classId}/people`, PaginatedPeopleSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${classId}/people`, PersonSchema, pagination);
 
 export const listClassTeachers = (
   config: EdlinkConfigData,
@@ -63,7 +60,7 @@ export const listClassTeachers = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${classId}/teachers`, PaginatedPeopleSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${classId}/teachers`, PersonSchema, pagination);
 
 export const listClassStudents = (
   config: EdlinkConfigData,
@@ -71,4 +68,4 @@ export const listClassStudents = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${classId}/students`, PaginatedPeopleSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${classId}/students`, PersonSchema, pagination);

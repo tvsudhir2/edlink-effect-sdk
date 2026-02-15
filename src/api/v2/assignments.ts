@@ -4,7 +4,6 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Assignment } from "../../schemas/assignment.js";
-import { PaginatedAssignmentsSchema } from "../../schemas/paginated.js";
 import { Assignment as AssignmentSchema } from "../../schemas/assignment.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne, createOne, updateOne, deleteOne } from "./request.js";
@@ -21,7 +20,7 @@ export const listAssignments = (
   classId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Assignment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, classAssignmentsPath(classId), PaginatedAssignmentsSchema, pagination);
+  createPaginatedStream(config, httpClient, classAssignmentsPath(classId), AssignmentSchema, pagination);
 
 export const fetchAssignment = (
   config: EdlinkConfigData,

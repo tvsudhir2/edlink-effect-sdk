@@ -4,9 +4,12 @@
 
 // Client service & layer
 export { EdlinkClient, EdlinkClientLive } from "./client.js";
-export { EdlinkConfig } from "./config.js";
-export type { EdlinkConfigData } from "./config.js";
-export { EdlinkLive } from "./layers.js";
+export { EdlinkUserClient, EdlinkUserClientLive } from "./user-client.js";
+export { EdlinkConfig, EdlinkUserConfig } from "./config.js";
+export type { EdlinkConfigData, EdlinkUserConfigData } from "./config.js";
+export { EdlinkLive, EdlinkUserLive } from "./layers.js";
+export { TokenStore, InMemoryTokenStoreLive } from "./token-store.js";
+export type { TokenStoreShape } from "./token-store.js";
 
 // Errors
 export { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
@@ -67,6 +70,10 @@ export {
   Submission,
   EdlinkEvent,
   EdlinkEventSchema,
+  // Token / User API
+  TokenResponse,
+  TokenData,
+  UserProfile,
   // Paginated schemas
   PaginatedResponseSchema,
   PaginatedEventsSchema,

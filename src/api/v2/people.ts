@@ -10,16 +10,13 @@ import type { School } from "../../schemas/school.js";
 import type { EdlinkClass } from "../../schemas/class.js";
 import type { Section } from "../../schemas/section.js";
 import type { Agent } from "../../schemas/agent.js";
-import {
-  PaginatedPeopleSchema,
-  PaginatedEnrollmentsSchema,
-  PaginatedDistrictsSchema,
-  PaginatedSchoolsSchema,
-  PaginatedClassesSchema,
-  PaginatedSectionsSchema,
-  PaginatedAgentsSchema,
-} from "../../schemas/paginated.js";
 import { Person as PersonSchema } from "../../schemas/person.js";
+import { Enrollment as EnrollmentSchema } from "../../schemas/enrollment.js";
+import { District as DistrictSchema } from "../../schemas/district.js";
+import { School as SchoolSchema } from "../../schemas/school.js";
+import { EdlinkClass as ClassSchema } from "../../schemas/class.js";
+import { Section as SectionSchema } from "../../schemas/section.js";
+import { Agent as AgentSchema } from "../../schemas/agent.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
 
@@ -30,7 +27,7 @@ export const listPeople = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedPeopleSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, PersonSchema, pagination);
 
 export const fetchPerson = (
   config: EdlinkConfigData,
@@ -45,7 +42,7 @@ export const listPersonEnrollments = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Enrollment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/enrollments`, PaginatedEnrollmentsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/enrollments`, EnrollmentSchema, pagination);
 
 export const listPersonDistricts = (
   config: EdlinkConfigData,
@@ -53,7 +50,7 @@ export const listPersonDistricts = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<District, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/districts`, PaginatedDistrictsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/districts`, DistrictSchema, pagination);
 
 export const listPersonSchools = (
   config: EdlinkConfigData,
@@ -61,7 +58,7 @@ export const listPersonSchools = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<School, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/schools`, PaginatedSchoolsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/schools`, SchoolSchema, pagination);
 
 export const listPersonClasses = (
   config: EdlinkConfigData,
@@ -69,7 +66,7 @@ export const listPersonClasses = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<EdlinkClass, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/classes`, PaginatedClassesSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/classes`, ClassSchema, pagination);
 
 export const listPersonSections = (
   config: EdlinkConfigData,
@@ -77,7 +74,7 @@ export const listPersonSections = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Section, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/sections`, PaginatedSectionsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/sections`, SectionSchema, pagination);
 
 export const listPersonAgents = (
   config: EdlinkConfigData,
@@ -85,4 +82,4 @@ export const listPersonAgents = (
   personId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Agent, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${personId}/agents`, PaginatedAgentsSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${personId}/agents`, AgentSchema, pagination);

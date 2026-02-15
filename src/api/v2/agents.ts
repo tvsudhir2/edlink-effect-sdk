@@ -4,7 +4,6 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Agent } from "../../schemas/agent.js";
-import { PaginatedAgentsSchema } from "../../schemas/paginated.js";
 import { Agent as AgentSchema } from "../../schemas/agent.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
@@ -16,7 +15,7 @@ export const listAgents = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<Agent, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedAgentsSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, AgentSchema, pagination);
 
 export const fetchAgent = (
   config: EdlinkConfigData,

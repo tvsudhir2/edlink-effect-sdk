@@ -4,7 +4,6 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Session } from "../../schemas/session.js";
-import { PaginatedSessionsSchema } from "../../schemas/paginated.js";
 import { Session as SessionSchema } from "../../schemas/session.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
@@ -16,7 +15,7 @@ export const listSessions = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<Session, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedSessionsSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, SessionSchema, pagination);
 
 export const fetchSession = (
   config: EdlinkConfigData,

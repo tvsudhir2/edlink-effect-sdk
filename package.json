@@ -1,17 +1,38 @@
 {
-  "name": "edlink-effect-sdk",
+  "name": "@tvsudhir2/edlink-effect-sdk",
   "version": "1.0.0",
   "description": "Edlink SDK built with Effect-TS — functional, type-safe, stream-based",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "files": ["dist"],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tvsudhir2/edlink-effect-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tvsudhir2/edlink-effect-sdk/issues"
+  },
+  "homepage": "https://github.com/tvsudhir2/edlink-effect-sdk#readme",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "pnpm run build",
     "ex-1": "tsx --env-file=.env.local examples/1-fetch-default-pages.ts",
     "ex-2": "tsx --env-file=.env.local examples/2-fetch-max-records.ts",
-    "ex-3": "tsx --env-file=.env.local examples/3-process-sequentially.ts"
+    "ex-3": "tsx --env-file=.env.local examples/3-process-sequentially.ts",
+    "ex-4": "tsx --env-file=.env.local examples/4-list-assignments.ts",
+    "ex-5": "tsx --env-file=.env.local examples/5-create-assignment.ts",
+    "ex-6": "tsx --env-file=.env.local examples/6-update-assignment.ts",
+    "ex-7": "tsx --env-file=.env.local examples/7-delete-assignment.ts"
   },
   "keywords": ["edlink", "effect", "effect-ts", "functional"],
   "author": "Sudheer Tirumalasetty",

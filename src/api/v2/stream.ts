@@ -9,6 +9,7 @@ import {
   trimItems,
   deriveNextUrl,
 } from "../../pagination.js";
+import { PaginatedResponseSchema } from "../../schemas/paginated.js";
 
 // ---------------------------------------------------------------------------
 // Generic paginated stream builder
@@ -20,17 +21,22 @@ import {
  * Pages are fetched on-demand via `Stream.unfoldEffect` — downstream
  * back-pressure controls when the next HTTP call is made.
  *
- * Responses are decoded through the provided paginated schema at the
- * boundary so malformed data fails fast with `EdlinkDecodeError`.
+ * Responses are decoded through the provided item schema at the boundary
+ * so malformed data fails fast with `EdlinkDecodeError`.
+ *
+ * Accepts an **item-level** schema (e.g. `Assignment`) instead of a
+ * pre-built paginated schema — this ensures TypeScript displays the clean
+ * class name on hover rather than expanding the full structural type.
  */
 export const createPaginatedStream = <A, I>(
   config: EdlinkConfigData,
   httpClient: HttpClient.HttpClient,
   path: string,
-  paginatedSchema: Schema.Schema<{ readonly $data: ReadonlyArray<A>; readonly $next?: string | null | undefined }, I>,
+  itemSchema: Schema.Schema<A, I>,
   paginationConfig: PaginationConfig,
 ): Stream.Stream<A, EdlinkApiError | EdlinkDecodeError> => {
   const client = httpClient.pipe(HttpClient.filterStatusOk);
+  const paginatedSchema = PaginatedResponseSchema(itemSchema);
   const decode = Schema.decodeUnknown(paginatedSchema);
 
   const initialState: PaginationState = {

@@ -3,8 +3,7 @@ import { HttpClient } from "@effect/platform";
 import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
-import type { EdlinkEvent } from "../../schemas/event.js";
-import { PaginatedEventsSchema } from "../../schemas/paginated.js";
+import { EdlinkEvent } from "../../schemas/event.js";
 import { createPaginatedStream } from "./stream.js";
 
 // ---------------------------------------------------------------------------
@@ -28,5 +27,5 @@ export const createEventsStream = (
   httpClient: HttpClient.HttpClient,
   paginationConfig: PaginationConfig,
 ): Stream.Stream<EdlinkEvent, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, EVENTS_PATH, PaginatedEventsSchema, paginationConfig);
+  createPaginatedStream(config, httpClient, EVENTS_PATH, EdlinkEvent, paginationConfig);
 

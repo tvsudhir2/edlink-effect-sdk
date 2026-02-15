@@ -4,7 +4,6 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Enrollment } from "../../schemas/enrollment.js";
-import { PaginatedEnrollmentsSchema } from "../../schemas/paginated.js";
 import { Enrollment as EnrollmentSchema } from "../../schemas/enrollment.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
@@ -16,7 +15,7 @@ export const listEnrollments = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<Enrollment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedEnrollmentsSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, EnrollmentSchema, pagination);
 
 export const fetchEnrollment = (
   config: EdlinkConfigData,

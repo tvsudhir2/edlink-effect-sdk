@@ -44,6 +44,7 @@ export { Assignment } from "./assignment.js";
 export { Category } from "./category.js";
 export { Attempt, Submission } from "./submission.js";
 export { EdlinkEvent, EdlinkEventSchema } from "./event.js";
+export { TokenResponse, TokenData, UserProfile } from "./token.js";
 
 export {
   PaginatedResponseSchema,

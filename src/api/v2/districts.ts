@@ -5,8 +5,8 @@ import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { District } from "../../schemas/district.js";
 import type { Person } from "../../schemas/person.js";
-import { PaginatedDistrictsSchema, PaginatedPeopleSchema } from "../../schemas/paginated.js";
 import { District as DistrictSchema } from "../../schemas/district.js";
+import { Person as PersonSchema } from "../../schemas/person.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
 
@@ -17,7 +17,7 @@ export const listDistricts = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<District, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedDistrictsSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, DistrictSchema, pagination);
 
 export const fetchDistrict = (
   config: EdlinkConfigData,
@@ -32,4 +32,4 @@ export const listDistrictAdministrators = (
   districtId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${districtId}/administrators`, PaginatedPeopleSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${districtId}/administrators`, PersonSchema, pagination);

@@ -5,8 +5,8 @@ import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Course } from "../../schemas/course.js";
 import type { EdlinkClass } from "../../schemas/class.js";
-import { PaginatedCoursesSchema, PaginatedClassesSchema } from "../../schemas/paginated.js";
 import { Course as CourseSchema } from "../../schemas/course.js";
+import { EdlinkClass as ClassSchema } from "../../schemas/class.js";
 import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
 
@@ -17,7 +17,7 @@ export const listCourses = (
   httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
 ): Stream.Stream<Course, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, PaginatedCoursesSchema, pagination);
+  createPaginatedStream(config, httpClient, BASE, CourseSchema, pagination);
 
 export const fetchCourse = (
   config: EdlinkConfigData,
@@ -32,4 +32,4 @@ export const listCourseClasses = (
   courseId: string,
   pagination: PaginationConfig,
 ): Stream.Stream<EdlinkClass, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${courseId}/classes`, PaginatedClassesSchema, pagination);
+  createPaginatedStream(config, httpClient, `${BASE}/${courseId}/classes`, ClassSchema, pagination);
