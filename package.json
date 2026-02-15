@@ -10,8 +10,8 @@
     "build": "tsc",
     "prepublishOnly": "pnpm run build",
     "ex-1": "tsx --env-file=.env.local examples/1-fetch-default-pages.ts",
-    "ex-3": "tsx --env-file=.env.local examples/3-fetch-max-records.ts",
-    "ex-4": "tsx --env-file=.env.local examples/4-process-sequentially.ts"
+    "ex-2": "tsx --env-file=.env.local examples/2-fetch-max-records.ts",
+    "ex-3": "tsx --env-file=.env.local examples/3-process-sequentially.ts"
   },
   "keywords": ["edlink", "effect", "effect-ts", "functional"],
   "author": "Sudheer Tirumalasetty",

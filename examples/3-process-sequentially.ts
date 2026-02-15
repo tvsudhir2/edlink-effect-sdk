@@ -1,11 +1,11 @@
 /**
- * Example 4 — Process Events Sequentially (Memory-Efficient)
+ * Example 3 — Process Events Sequentially (Memory-Efficient)
  *
  * Strategy : Stream processing — one item at a time
  * Memory   : Very low (each item is processed then discarded)
  * Use-case : Large datasets, pipeline processing, real-time feeds
  *
- * Run: pnpm ex-4
+ * Run: pnpm ex-3
  */
 import { Effect, Stream, Ref } from "effect";
 import { NodeRuntime } from "@effect/platform-node";
@@ -14,7 +14,7 @@ import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
   yield* Effect.logInfo(
-    "Example 4: Process events sequentially (memory-efficient)",
+    "Example 3: Process events sequentially (memory-efficient)",
   );
 
   const client = yield* EdlinkClient;

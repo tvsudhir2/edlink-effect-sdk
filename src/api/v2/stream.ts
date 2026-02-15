@@ -1,0 +1,99 @@
+import { Effect, Stream, Option, Secret, Schema } from "effect";
+import { HttpClient, HttpClientRequest } from "@effect/platform";
+import type { EdlinkConfigData } from "../../config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import {
+  type PaginationConfig,
+  type PaginationState,
+  shouldContinue,
+  trimItems,
+  deriveNextUrl,
+} from "../../pagination.js";
+
+// ---------------------------------------------------------------------------
+// Generic paginated stream builder
+// ---------------------------------------------------------------------------
+
+/**
+ * Build a lazy, paginated `Stream` of items from any Edlink v2 endpoint.
+ *
+ * Pages are fetched on-demand via `Stream.unfoldEffect` — downstream
+ * back-pressure controls when the next HTTP call is made.
+ *
+ * Responses are decoded through the provided paginated schema at the
+ * boundary so malformed data fails fast with `EdlinkDecodeError`.
+ */
+export const createPaginatedStream = <A, I>(
+  config: EdlinkConfigData,
+  httpClient: HttpClient.HttpClient,
+  path: string,
+  paginatedSchema: Schema.Schema<{ readonly $data: ReadonlyArray<A>; readonly $next?: string | null | undefined }, I>,
+  paginationConfig: PaginationConfig,
+): Stream.Stream<A, EdlinkApiError | EdlinkDecodeError> => {
+  const client = httpClient.pipe(HttpClient.filterStatusOk);
+  const decode = Schema.decodeUnknown(paginatedSchema);
+
+  const initialState: PaginationState = {
+    nextUrl: `${config.apiBaseUrl}${path}`,
+    pageCount: 0,
+    recordCount: 0,
+  };
+
+  return Stream.unfoldEffect(initialState, (state) =>
+    Effect.gen(function* () {
+      if (!state.nextUrl || !shouldContinue(state, paginationConfig)) {
+        return Option.none<readonly [readonly A[], PaginationState]>();
+      }
+
+      const request = HttpClientRequest.get(state.nextUrl).pipe(
+        HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
+      );
+
+      const response = yield* client.execute(request).pipe(
+        Effect.mapError(
+          (err) =>
+            new EdlinkApiError({
+              message: `HTTP request failed: ${String(err)}`,
+              cause: err,
+            }),
+        ),
+      );
+
+      const raw = yield* response.json.pipe(
+        Effect.mapError(
+          (err) =>
+            new EdlinkApiError({
+              message: `Failed to parse JSON response: ${String(err)}`,
+              cause: err,
+            }),
+        ),
+      );
+
+      const page = yield* decode(raw).pipe(
+        Effect.mapError(
+          (err) =>
+            new EdlinkDecodeError({
+              message: `Response schema mismatch: ${String(err)}`,
+              cause: err,
+            }),
+        ),
+      );
+
+      const items = page.$data;
+      if (items.length === 0) {
+        return Option.none<readonly [readonly A[], PaginationState]>();
+      }
+
+      const emitted = trimItems(items, state, paginationConfig);
+      const newRecordCount = state.recordCount + emitted.length;
+
+      const next: PaginationState = {
+        nextUrl: deriveNextUrl(page.$next ?? null, newRecordCount, paginationConfig),
+        pageCount: state.pageCount + 1,
+        recordCount: newRecordCount,
+      };
+
+      return Option.some([emitted, next] as const);
+    }),
+  ).pipe(Stream.flatMap((items) => Stream.fromIterable(items)));
+};

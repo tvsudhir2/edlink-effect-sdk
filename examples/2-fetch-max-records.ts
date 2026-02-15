@@ -1,11 +1,11 @@
 /**
- * Example 3 — Fetch Events with Max Record Limit (50)
+ * Example 2 — Fetch Events with Max Record Limit (50)
  *
  * Strategy : Record cap
  * Memory   : Predictable (stops at exactly N records)
  * Use-case : Batch processing, pagination UIs, controlled ingestion
  *
- * Run: pnpm ex-3
+ * Run: pnpm ex-2
  */
 import { Effect, Stream, Chunk } from "effect";
 import { NodeRuntime } from "@effect/platform-node";
@@ -13,7 +13,7 @@ import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo("Example 3: Fetch events — max 50 records");
+  yield* Effect.logInfo("Example 2: Fetch events — max 50 records");
 
   const client = yield* EdlinkClient;
 
