@@ -6,16 +6,19 @@ import { Identifier, SessionState, SessionType } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Session extends Schema.Class<Session>("Session")({
+  // --- ID fields ---
+  district_id: Schema.String,
   id: Schema.String,
+  school_id: Schema.NullOr(Schema.String),
+
+  // --- Other fields ---
   created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  end_date: Schema.NullOr(Schema.String),
   identifiers: Schema.Array(Identifier),
   name: Schema.String,
-  type: SessionType,
-  state: SessionState,
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
   start_date: Schema.NullOr(Schema.String),
-  end_date: Schema.NullOr(Schema.String),
-  school_id: Schema.NullOr(Schema.String),
-  district_id: Schema.String,
+  state: SessionState,
+  type: SessionType,
+  updated_date: Schema.String,
 }) {}

@@ -6,12 +6,15 @@ import { AgentRelationship, Identifier } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Agent extends Schema.Class<Agent>("Agent")({
+  // --- ID fields ---
   id: Schema.String,
-  created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-  identifiers: Schema.Array(Identifier),
   observer_id: Schema.String,
   target_id: Schema.String,
+
+  // --- Other fields ---
+  created_date: Schema.String,
+  identifiers: Schema.Array(Identifier),
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
   relationship: AgentRelationship,
+  updated_date: Schema.String,
 }) {}

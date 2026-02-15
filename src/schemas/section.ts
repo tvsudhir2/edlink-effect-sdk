@@ -6,17 +6,20 @@ import { Identifier, SectionState } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Section extends Schema.Class<Section>("Section")({
-  id: Schema.String,
-  created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-  identifiers: Schema.Array(Identifier),
-  name: Schema.String,
-  picture_url: Schema.NullOr(Schema.String),
-  locale: Schema.NullOr(Schema.String),
-  time_zone: Schema.NullOr(Schema.String),
-  state: SectionState,
-  description: Schema.NullOr(Schema.String),
-  periods: Schema.Array(Schema.String),
+  // --- ID fields ---
   class_id: Schema.String,
+  id: Schema.String,
+
+  // --- Other fields ---
+  created_date: Schema.String,
+  description: Schema.NullOr(Schema.String),
+  identifiers: Schema.Array(Identifier),
+  locale: Schema.NullOr(Schema.String),
+  name: Schema.String,
+  periods: Schema.Array(Schema.String),
+  picture_url: Schema.NullOr(Schema.String),
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  state: SectionState,
+  time_zone: Schema.NullOr(Schema.String),
+  updated_date: Schema.String,
 }) {}

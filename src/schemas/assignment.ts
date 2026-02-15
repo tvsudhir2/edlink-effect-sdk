@@ -7,25 +7,28 @@ import { Attachment } from "./attachment.js";
 // ---------------------------------------------------------------------------
 
 export class Assignment extends Schema.Class<Assignment>("Assignment")({
+  // --- ID fields ---
+  assignee_ids: Schema.Array(Schema.String),
+  category_id: Schema.NullOr(Schema.String),
   id: Schema.String,
+  session_id: Schema.NullOr(Schema.String),
+
+  // --- Other fields ---
+  assignee_mode: AssignmentAssigneeMode,
+  attachments: Schema.Array(Attachment),
   created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-  title: Schema.String,
   description: Schema.String,
   description_plaintext: Schema.String,
-  state: AssignmentState,
-  attachments: Schema.Array(Attachment),
-  assignee_mode: AssignmentAssigneeMode,
-  assignee_ids: Schema.Array(Schema.String),
-  due_date: Schema.NullOr(Schema.String),
   display_date: Schema.NullOr(Schema.String),
-  start_date: Schema.NullOr(Schema.String),
+  due_date: Schema.NullOr(Schema.String),
   end_date: Schema.NullOr(Schema.String),
-  points_possible: Schema.Number,
   grading_type: Schema.String,
-  submission_types: Schema.Array(Schema.String),
   max_attempts: Schema.Number,
-  session_id: Schema.NullOr(Schema.String),
-  category_id: Schema.NullOr(Schema.String),
+  points_possible: Schema.Number,
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  start_date: Schema.NullOr(Schema.String),
+  state: AssignmentState,
+  submission_types: Schema.Array(Schema.String),
+  title: Schema.String,
+  updated_date: Schema.String,
 }) {}

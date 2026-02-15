@@ -6,18 +6,21 @@ import { ProductState } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Product extends Schema.Class<Product>("Product")({
+  // --- ID fields ---
   id: Schema.String,
-  created_date: Schema.String,
-  updated_date: Schema.String,
-  name: Schema.String,
-  code: Schema.String,
-  picture_url: Schema.String,
-  description: Schema.String,
-  state: ProductState,
   team_id: Schema.String,
-  soft_cap: Schema.optional(Schema.Number),
+
+  // --- Other fields ---
+  code: Schema.String,
+  created_date: Schema.String,
+  description: Schema.String,
   hard_cap: Schema.optional(Schema.Number),
-  tags: Schema.Array(Schema.String),
   license_duration: Schema.Number,
+  name: Schema.String,
+  picture_url: Schema.String,
   properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  soft_cap: Schema.optional(Schema.Number),
+  state: ProductState,
+  tags: Schema.Array(Schema.String),
+  updated_date: Schema.String,
 }) {}

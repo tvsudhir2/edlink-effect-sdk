@@ -6,11 +6,14 @@ import { AttachmentType } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Attachment extends Schema.Class<Attachment>("Attachment")({
-  type: AttachmentType,
+  // --- ID fields ---
+  file_external_id: Schema.optional(Schema.String),
+
+  // --- Other fields ---
+  description: Schema.optional(Schema.String),
+  size: Schema.optional(Schema.Number),
   text: Schema.optional(Schema.String),
   title: Schema.optional(Schema.String),
-  description: Schema.optional(Schema.String),
+  type: AttachmentType,
   url: Schema.optional(Schema.String),
-  file_external_id: Schema.optional(Schema.String),
-  size: Schema.optional(Schema.Number),
 }) {}

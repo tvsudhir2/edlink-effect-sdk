@@ -7,14 +7,17 @@ import { Address } from "./address.js";
 // ---------------------------------------------------------------------------
 
 export class District extends Schema.Class<District>("District")({
+  // --- ID fields ---
   id: Schema.String,
+
+  // --- Other fields ---
+  address: Schema.NullOr(Address),
   created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
   identifiers: Schema.Array(Identifier),
+  locale: Schema.NullOr(Schema.String),
   name: Schema.String,
   picture_url: Schema.NullOr(Schema.String),
-  locale: Schema.NullOr(Schema.String),
-  address: Schema.NullOr(Address),
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
   time_zone: Schema.NullOr(Schema.String),
+  updated_date: Schema.String,
 }) {}

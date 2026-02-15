@@ -6,17 +6,20 @@ import { EnrollmentState, Identifier, Role } from "./common.js";
 // ---------------------------------------------------------------------------
 
 export class Enrollment extends Schema.Class<Enrollment>("Enrollment")({
+  // --- ID fields ---
+  class_id: Schema.String,
   id: Schema.String,
+  person_id: Schema.String,
+  section_id: Schema.NullOr(Schema.String),
+
+  // --- Other fields ---
   created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  end_date: Schema.NullOr(Schema.String),
   identifiers: Schema.Array(Identifier),
-  state: EnrollmentState,
+  primary: Schema.NullOr(Schema.Boolean),
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
   role: Role,
   start_date: Schema.NullOr(Schema.String),
-  end_date: Schema.NullOr(Schema.String),
-  primary: Schema.NullOr(Schema.Boolean),
-  person_id: Schema.String,
-  class_id: Schema.String,
-  section_id: Schema.NullOr(Schema.String),
+  state: EnrollmentState,
+  updated_date: Schema.String,
 }) {}

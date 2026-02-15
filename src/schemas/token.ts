@@ -5,9 +5,10 @@ import { Schema } from "effect";
 // ---------------------------------------------------------------------------
 
 export class TokenResponse extends Schema.Class<TokenResponse>("TokenResponse")({
+  // --- Other fields ---
   access_token: Schema.String,
-  refresh_token: Schema.String,
   expires_in: Schema.Number,
+  refresh_token: Schema.String,
   token_type: Schema.String,
 }) {}
 
@@ -16,10 +17,11 @@ export class TokenResponse extends Schema.Class<TokenResponse>("TokenResponse")(
 // ---------------------------------------------------------------------------
 
 export class TokenData extends Schema.Class<TokenData>("TokenData")({
+  // --- Other fields ---
   accessToken: Schema.String,
-  refreshToken: Schema.String,
   /** Unix epoch (ms) when the access token expires */
   expiresAt: Schema.Number,
+  refreshToken: Schema.String,
 }) {}
 
 // ---------------------------------------------------------------------------
@@ -27,14 +29,17 @@ export class TokenData extends Schema.Class<TokenData>("TokenData")({
 // ---------------------------------------------------------------------------
 
 export class UserProfile extends Schema.Class<UserProfile>("UserProfile")({
+  // --- ID fields ---
   id: Schema.String,
+
+  // --- Other fields ---
+  created_date: Schema.String,
+  display_name: Schema.NullOr(Schema.String),
   email: Schema.NullOr(Schema.String),
   first_name: Schema.String,
   last_name: Schema.String,
-  display_name: Schema.NullOr(Schema.String),
   locale: Schema.NullOr(Schema.String),
-  time_zone: Schema.NullOr(Schema.String),
   picture_url: Schema.NullOr(Schema.String),
-  created_date: Schema.String,
+  time_zone: Schema.NullOr(Schema.String),
   updated_date: Schema.String,
 }) {}

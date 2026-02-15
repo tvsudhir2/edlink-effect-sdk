@@ -7,8 +7,9 @@ import { Attachment } from "./attachment.js";
 // ---------------------------------------------------------------------------
 
 export class Attempt extends Schema.Class<Attempt>("Attempt")({
-  created_date: Schema.String,
+  // --- Other fields ---
   attachments: Schema.Array(Attachment),
+  created_date: Schema.String,
 }) {}
 
 // ---------------------------------------------------------------------------
@@ -16,18 +17,21 @@ export class Attempt extends Schema.Class<Attempt>("Attempt")({
 // ---------------------------------------------------------------------------
 
 export class Submission extends Schema.Class<Submission>("Submission")({
+  // --- ID fields ---
+  grader_id: Schema.NullOr(Schema.String),
   id: Schema.String,
-  created_date: Schema.String,
-  updated_date: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
-  state: SubmissionState,
-  flags: Schema.Array(SubmissionFlag),
+  person_id: Schema.String,
+
+  // --- Other fields ---
   attempts: Schema.Array(Attempt),
+  created_date: Schema.String,
+  extra_attempts: Schema.Number,
+  flags: Schema.Array(SubmissionFlag),
+  grade: Schema.NullOr(Schema.String),
   grade_comment: Schema.NullOr(Schema.String),
   grade_points: Schema.NullOr(Schema.Number),
-  grade: Schema.NullOr(Schema.String),
-  extra_attempts: Schema.Number,
   override_due_date: Schema.NullOr(Schema.String),
-  grader_id: Schema.NullOr(Schema.String),
-  person_id: Schema.String,
+  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  state: SubmissionState,
+  updated_date: Schema.String,
 }) {}
