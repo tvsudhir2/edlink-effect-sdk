@@ -89,13 +89,13 @@ The `EdlinkClient` service exposes **13 namespaced sub-services** + an events st
 ```ts
 const client = yield* EdlinkClient;
 
-client.districts.list();                      // → Stream<District>
-client.schools.fetch(id);                     // → Effect<School>
-client.people.listEnrollments(personId);      // → Stream<Enrollment>
+client.districts.list();                                    // → Stream<District>
+client.schools.fetch(id);                                   // → Effect<School>
+client.people.listEnrollments(personId);                    // → Stream<Enrollment>
 
-client.assignments.create(classId, body);     // → Effect<Assignment>
-client.assignments.update(classId, id, body); // → Effect<Assignment>
-client.assignments.delete(classId, id);       // → Effect<void>
+client.assignments.create(classId, body);                   // → Effect<Assignment>
+client.assignments.update({ classId, assignmentId, body }); // → Effect<Assignment>
+client.assignments.delete(classId, assignmentId);           // → Effect<void>
 ```
 
 ### Supported Entities
