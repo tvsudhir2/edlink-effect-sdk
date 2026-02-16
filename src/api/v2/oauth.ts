@@ -25,7 +25,7 @@ export interface UserRequestContext {
  */
 export interface AuthorizationUrlOptions {
   readonly scopes?: readonly string[];
-  readonly state?: string;
+  readonly state?: string | undefined;
 }
 
 /**
