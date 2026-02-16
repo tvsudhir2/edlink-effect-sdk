@@ -1,0 +1,126 @@
+import { describe, it, expect } from "vitest";
+import { Effect, Secret } from "effect";
+import { buildAuthorizationUrl, exchangeCode, refreshToken } from "../src/api/v2/oauth.js";
+import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { makeTestHttpClient } from "./helpers/mock-http-client.js";
+import { tokenResponseFixture } from "./helpers/fixtures.js";
+import type { EdlinkUserConfigData } from "../src/config.js";
+
+// ---------------------------------------------------------------------------
+// Test config for User/OAuth API
+// ---------------------------------------------------------------------------
+
+const userConfig: EdlinkUserConfigData = {
+  clientId: "test-client-id",
+  clientSecret: Secret.fromString("test-client-secret"),
+  redirectUri: "https://app.example.com/callback",
+  apiBaseUrl: "https://test.edlink.api",
+};
+
+const BASE = userConfig.apiBaseUrl;
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
+const runFail = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(Effect.flip(e));
+
+const ok = (body: unknown) => ({ status: 200, body });
+const fail = (status: number) => ({ status, body: { error: "err" } });
+
+// ============================================================================
+// buildAuthorizationUrl (pure function)
+// ============================================================================
+
+describe("buildAuthorizationUrl", () => {
+  it("builds a URL with client_id, redirect_uri, and response_type", () => {
+    const url = buildAuthorizationUrl(userConfig);
+    const parsed = new URL(url);
+
+    expect(parsed.origin + parsed.pathname).toBe(`${BASE}/authentication/authorize`);
+    expect(parsed.searchParams.get("client_id")).toBe("test-client-id");
+    expect(parsed.searchParams.get("redirect_uri")).toBe("https://app.example.com/callback");
+    expect(parsed.searchParams.get("response_type")).toBe("code");
+    expect(parsed.searchParams.has("scope")).toBe(false);
+    expect(parsed.searchParams.has("state")).toBe(false);
+  });
+
+  it("includes scope when scopes are provided", () => {
+    const url = buildAuthorizationUrl(userConfig, ["openid", "profile"]);
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get("scope")).toBe("openid profile");
+  });
+
+  it("includes state when state is provided", () => {
+    const url = buildAuthorizationUrl(userConfig, [], "csrf-token-123");
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get("state")).toBe("csrf-token-123");
+  });
+
+  it("includes both scope and state", () => {
+    const url = buildAuthorizationUrl(userConfig, ["openid"], "my-state");
+    const parsed = new URL(url);
+    expect(parsed.searchParams.get("scope")).toBe("openid");
+    expect(parsed.searchParams.get("state")).toBe("my-state");
+  });
+});
+
+// ============================================================================
+// exchangeCode
+// ============================================================================
+
+describe("exchangeCode", () => {
+  it("POSTs to the token endpoint and returns decoded TokenResponse", async () => {
+    let req: any;
+    const client = makeTestHttpClient((r) => { req = r; return ok({ $data: tokenResponseFixture }); });
+    const result = await run(exchangeCode(userConfig, client, "auth-code-xyz"));
+
+    expect(req.method).toBe("POST");
+    expect(req.url).toBe(`${BASE}/v2/authentication/token`);
+    expect(result.access_token).toBe("access-abc-123");
+    expect(result.refresh_token).toBe("refresh-xyz-789");
+    expect(result.expires_in).toBe(3600);
+  });
+
+  it("returns EdlinkApiError on 400", async () => {
+    const err = await runFail(exchangeCode(userConfig, makeTestHttpClient(() => fail(400)), "bad-code"));
+    expect(err).toBeInstanceOf(EdlinkApiError);
+  });
+
+  it("returns EdlinkDecodeError on bad response shape", async () => {
+    const err = await runFail(
+      exchangeCode(userConfig, makeTestHttpClient(() => ok({ $data: { bad: true } })), "code"),
+    );
+    expect(err).toBeInstanceOf(EdlinkDecodeError);
+  });
+});
+
+// ============================================================================
+// refreshToken
+// ============================================================================
+
+describe("refreshToken", () => {
+  it("POSTs to the token endpoint with refresh_token grant and returns decoded TokenResponse", async () => {
+    let req: any;
+    const client = makeTestHttpClient((r) => { req = r; return ok({ $data: tokenResponseFixture }); });
+    const result = await run(refreshToken(userConfig, client, "refresh-xyz-789"));
+
+    expect(req.method).toBe("POST");
+    expect(req.url).toBe(`${BASE}/v2/authentication/token`);
+    expect(result.access_token).toBe("access-abc-123");
+    expect(result.refresh_token).toBe("refresh-xyz-789");
+  });
+
+  it("returns EdlinkApiError on 401", async () => {
+    const err = await runFail(refreshToken(userConfig, makeTestHttpClient(() => fail(401)), "bad-token"));
+    expect(err).toBeInstanceOf(EdlinkApiError);
+  });
+
+  it("returns EdlinkDecodeError on bad response shape", async () => {
+    const err = await runFail(
+      refreshToken(userConfig, makeTestHttpClient(() => ok({ $data: {} })), "tok"),
+    );
+    expect(err).toBeInstanceOf(EdlinkDecodeError);
+  });
+});
