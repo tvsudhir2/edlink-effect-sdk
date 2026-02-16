@@ -11,7 +11,9 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "engines": {
     "node": ">=18"
   },
@@ -25,6 +27,8 @@
   "homepage": "https://github.com/tvsudhir2/edlink-effect-sdk#readme",
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm run build",
     "ex-1": "tsx --env-file=.env.local examples/1-fetch-default-pages.ts",
     "ex-2": "tsx --env-file=.env.local examples/2-fetch-max-records.ts",
@@ -34,7 +38,12 @@
     "ex-6": "tsx --env-file=.env.local examples/6-update-assignment.ts",
     "ex-7": "tsx --env-file=.env.local examples/7-delete-assignment.ts"
   },
-  "keywords": ["edlink", "effect", "effect-ts", "functional"],
+  "keywords": [
+    "edlink",
+    "effect",
+    "effect-ts",
+    "functional"
+  ],
   "author": "Sudheer Tirumalasetty",
   "license": "MIT",
   "publishConfig": {
@@ -46,7 +55,9 @@
     "effect": "^3.19.13"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.9",
     "tsx": "^4.21.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^2.1.9"
   }
 }

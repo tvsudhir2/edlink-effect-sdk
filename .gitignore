@@ -2,6 +2,7 @@ node_modules/
 dist/
 docs/
 logs/
+coverage/
 *.tsbuildinfo
 .DS_Store
 
