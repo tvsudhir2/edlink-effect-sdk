@@ -1,9 +1,5 @@
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
 import { Effect } from "effect";
-import {
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "@effect/platform";
 
 // ---------------------------------------------------------------------------
 // Mock HTTP client — the ONLY mock in the test suite
@@ -20,9 +16,7 @@ export interface MockResponse {
   readonly body?: unknown;
 }
 
-export type MockHandler = (
-  request: HttpClientRequest.HttpClientRequest,
-) => MockResponse;
+export type MockHandler = (request: HttpClientRequest.HttpClientRequest) => MockResponse;
 
 /**
  * Build a real `HttpClient.HttpClient` whose network call is replaced by
@@ -33,13 +27,10 @@ export const makeTestHttpClient = (handler: MockHandler): HttpClient.HttpClient 
   HttpClient.make((request) => {
     const { status, body } = handler(request);
 
-    const webResponse = new Response(
-      body !== undefined ? JSON.stringify(body) : null,
-      {
-        status,
-        headers: { "content-type": "application/json" },
-      },
-    );
+    const webResponse = new Response(body !== undefined ? JSON.stringify(body) : null, {
+      status,
+      headers: { "content-type": "application/json" },
+    });
 
     return Effect.succeed(HttpClientResponse.fromWeb(request, webResponse));
   });

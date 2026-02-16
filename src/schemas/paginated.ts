@@ -1,18 +1,18 @@
 import { Schema } from "effect";
-import { EdlinkEvent } from "./event.js";
-import { Person } from "./person.js";
-import { School } from "./school.js";
-import { District } from "./district.js";
-import { Course } from "./course.js";
-import { EdlinkClass } from "./class.js";
-import { Section } from "./section.js";
-import { Session } from "./session.js";
-import { Enrollment } from "./enrollment.js";
 import { Agent } from "./agent.js";
 import { Assignment } from "./assignment.js";
 import { Category } from "./category.js";
-import { Submission } from "./submission.js";
+import { EdlinkClass } from "./class.js";
+import { Course } from "./course.js";
+import { District } from "./district.js";
+import { Enrollment } from "./enrollment.js";
+import { EdlinkEvent } from "./event.js";
 import { License } from "./license.js";
+import { Person } from "./person.js";
+import { School } from "./school.js";
+import { Section } from "./section.js";
+import { Session } from "./session.js";
+import { Submission } from "./submission.js";
 
 // ---------------------------------------------------------------------------
 // Paginated response — generic schema factory
@@ -22,9 +22,7 @@ import { License } from "./license.js";
  * Build a paginated-response schema for any item type.
  * Edlink returns `{ $data: T[], $next: string | null }`.
  */
-export const PaginatedResponseSchema = <A, I, R>(
-  itemSchema: Schema.Schema<A, I, R>,
-) =>
+export const PaginatedResponseSchema = <A, I, R>(itemSchema: Schema.Schema<A, I, R>) =>
   Schema.Struct({
     $data: Schema.Array(itemSchema),
     $next: Schema.optional(Schema.NullOr(Schema.String)),

@@ -1,14 +1,14 @@
-import { describe, it, expect, vi } from "vitest";
-import { Effect, Layer, Secret, Option } from "effect";
 import { HttpClient } from "@effect/platform";
-import { EdlinkUserClient, EdlinkUserClientLive } from "../src/user-client.js";
-import { EdlinkUserConfig } from "../src/config.js";
+import { Effect, Layer, Option, Secret } from "effect";
+import { describe, expect, it } from "vitest";
 import type { EdlinkUserConfigData } from "../src/config.js";
-import { TokenStore, InMemoryTokenStoreLive } from "../src/token-store.js";
-import { TokenData } from "../src/schemas/token.js";
+import { EdlinkUserConfig } from "../src/config.js";
 import { EdlinkApiError } from "../src/errors.js";
-import { makeTestHttpClient, type MockHandler } from "./helpers/mock-http-client.js";
+import { TokenData } from "../src/schemas/token.js";
+import { InMemoryTokenStoreLive } from "../src/token-store.js";
+import { EdlinkUserClient, EdlinkUserClientLive } from "../src/user-client.js";
 import { tokenResponseFixture, userProfileFixture } from "./helpers/fixtures.js";
+import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
 
 // ---------------------------------------------------------------------------
 // Test setup
@@ -21,7 +21,7 @@ const userConfig: EdlinkUserConfigData = {
   apiBaseUrl: "https://test.edlink.api",
 };
 
-const BASE = userConfig.apiBaseUrl;
+const _BASE = userConfig.apiBaseUrl;
 
 /** Build a full Layer stack for EdlinkUserClient with a custom HttpClient */
 const buildLayer = (handler: MockHandler) => {
@@ -63,8 +63,9 @@ const fail = (status: number) => ({ status, body: { error: "err" } });
 
 describe("authorize", () => {
   it("builds authorization URL with config defaults", async () => {
-    const url = await runWith(() => ok({}), (client) =>
-      Effect.succeed(client.authorize()),
+    const url = await runWith(
+      () => ok({}),
+      (client) => Effect.succeed(client.authorize()),
     );
     const parsed = new URL(url);
     expect(parsed.searchParams.get("client_id")).toBe("test-client-id");
@@ -73,8 +74,9 @@ describe("authorize", () => {
   });
 
   it("includes scopes and state when provided", async () => {
-    const url = await runWith(() => ok({}), (client) =>
-      Effect.succeed(client.authorize(["openid"], "state-abc")),
+    const url = await runWith(
+      () => ok({}),
+      (client) => Effect.succeed(client.authorize(["openid"], "state-abc")),
     );
     const parsed = new URL(url);
     expect(parsed.searchParams.get("scope")).toBe("openid");
@@ -121,8 +123,9 @@ describe("handleCallback", () => {
 
 describe("getAccessToken", () => {
   it("returns None when no tokens are stored", async () => {
-    const result = await runWith(() => ok({}), (client) =>
-      client.getAccessToken("unknown-user"),
+    const result = await runWith(
+      () => ok({}),
+      (client) => client.getAccessToken("unknown-user"),
     );
     expect(Option.isNone(result)).toBe(true);
   });
@@ -193,8 +196,9 @@ describe("getAccessToken", () => {
 
 describe("getProfile", () => {
   it("returns EdlinkApiError when no tokens are stored", async () => {
-    const err = await runFailWith(() => ok({}), (client) =>
-      client.getProfile("unknown-user"),
+    const err = await runFailWith(
+      () => ok({}),
+      (client) => client.getProfile("unknown-user"),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });

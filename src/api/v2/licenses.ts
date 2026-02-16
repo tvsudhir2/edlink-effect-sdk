@@ -1,7 +1,7 @@
-import { Stream } from "effect";
-import { HttpClient } from "@effect/platform";
+import type { HttpClient } from "@effect/platform";
+import type { Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { License } from "../../schemas/license.js";
 import { License as LicenseSchema } from "../../schemas/license.js";

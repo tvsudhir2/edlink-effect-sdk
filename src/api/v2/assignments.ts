@@ -1,15 +1,14 @@
-import { Effect, Stream } from "effect";
-import { HttpClient } from "@effect/platform";
+import type { HttpClient } from "@effect/platform";
+import type { Effect, Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Assignment } from "../../schemas/assignment.js";
 import { Assignment as AssignmentSchema } from "../../schemas/assignment.js";
+import { createOne, deleteOne, fetchOne, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
-import { fetchOne, createOne, updateOne, deleteOne } from "./request.js";
 
-const classAssignmentsPath = (classId: string) =>
-  `/v2/graph/classes/${classId}/assignments`;
+const classAssignmentsPath = (classId: string) => `/v2/graph/classes/${classId}/assignments`;
 
 const classAssignmentPath = (classId: string, assignmentId: string) =>
   `/v2/graph/classes/${classId}/assignments/${assignmentId}`;
@@ -52,5 +51,4 @@ export const deleteAssignment = (
   httpClient: HttpClient.HttpClient,
   classId: string,
   assignmentId: string,
-): Effect.Effect<void, EdlinkApiError> =>
-  deleteOne(config, httpClient, classAssignmentPath(classId, assignmentId));
+): Effect.Effect<void, EdlinkApiError> => deleteOne(config, httpClient, classAssignmentPath(classId, assignmentId));

@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "node",
     coverage: {
       include: ["src/**/*.ts"],
+      exclude: ["src/index.ts", "src/schemas/index.ts", "src/layers.ts"],
     },
   },
 });

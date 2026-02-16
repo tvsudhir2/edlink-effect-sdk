@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { SubmissionFlag, SubmissionState } from "./common.js";
 import { Attachment } from "./attachment.js";
+import { SubmissionFlag, SubmissionState } from "./common.js";
 
 // ---------------------------------------------------------------------------
 // Attempt — a single submission attempt by a student

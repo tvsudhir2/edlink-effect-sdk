@@ -7,15 +7,14 @@
  *
  * Run: pnpm ex-3
  */
-import { Effect, Stream, Ref } from "effect";
+
 import { NodeRuntime } from "@effect/platform-node";
+import { Effect, Ref, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo(
-    "Example 3: Process events sequentially (memory-efficient)",
-  );
+  yield* Effect.logInfo("Example 3: Process events sequentially (memory-efficient)");
 
   const client = yield* EdlinkClient;
   const countRef = yield* Ref.make(0);
@@ -24,9 +23,7 @@ const program = Effect.gen(function* () {
     Effect.gen(function* () {
       const count = yield* Ref.updateAndGet(countRef, (n) => n + 1);
       if (count === 1 || count % 10 === 0) {
-        yield* Effect.log(
-          `  #${count}  id=${event.id}  type=${event.type}`,
-        );
+        yield* Effect.log(`  #${count}  id=${event.id}  type=${event.type}`);
       }
     }),
   );

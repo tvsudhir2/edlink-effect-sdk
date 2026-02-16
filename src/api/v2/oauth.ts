@@ -1,5 +1,5 @@
-import { Effect, Secret, Schema } from "effect";
-import { HttpClient, HttpClientRequest, HttpBody } from "@effect/platform";
+import { type HttpBody, HttpClient, HttpClientRequest } from "@effect/platform";
+import { Effect, Schema, Secret } from "effect";
 import type { EdlinkUserConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { TokenResponse } from "../../schemas/token.js";

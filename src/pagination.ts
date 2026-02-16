@@ -40,10 +40,7 @@ export interface PaginationState {
 }
 
 /** Should we fetch the next page given the current state and config? */
-export const shouldContinue = (
-  state: PaginationState,
-  config: PaginationConfig,
-): boolean => {
+export const shouldContinue = (state: PaginationState, config: PaginationConfig): boolean => {
   switch (config.type) {
     case "all":
       return true;
@@ -55,22 +52,14 @@ export const shouldContinue = (
 };
 
 /** Trim items if emitting them would exceed the record cap; identity otherwise */
-export const trimItems = <T>(
-  items: readonly T[],
-  state: PaginationState,
-  config: PaginationConfig,
-): readonly T[] => {
+export const trimItems = <T>(items: readonly T[], state: PaginationState, config: PaginationConfig): readonly T[] => {
   if (config.type !== "records") return items;
   const remaining = config.maxRecords - state.recordCount;
   return items.length <= remaining ? items : items.slice(0, remaining);
 };
 
 /** Derive the next cursor URL — empty string signals "stop" */
-export const deriveNextUrl = (
-  cursor: string | null,
-  newRecordCount: number,
-  config: PaginationConfig,
-): string => {
+export const deriveNextUrl = (cursor: string | null, newRecordCount: number, config: PaginationConfig): string => {
   if (!cursor) return "";
   if (config.type === "records" && newRecordCount >= config.maxRecords) return "";
   return cursor;

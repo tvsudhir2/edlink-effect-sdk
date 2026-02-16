@@ -1,9 +1,9 @@
-import { Layer } from "effect";
 import { FetchHttpClient } from "@effect/platform";
-import { EdlinkConfig, EdlinkUserConfig } from "./config.js";
+import { Layer } from "effect";
 import { EdlinkClientLive } from "./client.js";
-import { EdlinkUserClientLive } from "./user-client.js";
+import { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 import { InMemoryTokenStoreLive } from "./token-store.js";
+import { EdlinkUserClientLive } from "./user-client.js";
 
 // ---------------------------------------------------------------------------
 // Composed layer — single `Effect.provide(EdlinkLive)` in consumer code
@@ -18,10 +18,7 @@ import { InMemoryTokenStoreLive } from "./token-store.js";
  * myEffect.pipe(Effect.provide(EdlinkLive))
  * ```
  */
-export const EdlinkLive = EdlinkClientLive.pipe(
-  Layer.provide(EdlinkConfig.Live),
-  Layer.provide(FetchHttpClient.layer),
-);
+export const EdlinkLive = EdlinkClientLive.pipe(Layer.provide(EdlinkConfig.Live), Layer.provide(FetchHttpClient.layer));
 
 // ---------------------------------------------------------------------------
 // User API layer — OAuth + per-user token management

@@ -1,12 +1,12 @@
-import { Effect, Stream } from "effect";
-import { HttpClient } from "@effect/platform";
+import type { HttpClient } from "@effect/platform";
+import type { Effect, Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Agent } from "../../schemas/agent.js";
 import { Agent as AgentSchema } from "../../schemas/agent.js";
-import { createPaginatedStream } from "./stream.js";
 import { fetchOne } from "./request.js";
+import { createPaginatedStream } from "./stream.js";
 
 const BASE = "/v2/graph/agents";
 

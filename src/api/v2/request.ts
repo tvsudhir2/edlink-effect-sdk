@@ -1,5 +1,5 @@
-import { Effect, Secret, Schema } from "effect";
-import { HttpClient, HttpClientRequest, HttpBody } from "@effect/platform";
+import { type HttpBody, HttpClient, HttpClientRequest } from "@effect/platform";
+import { Effect, Schema, Secret } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 
@@ -29,9 +29,7 @@ export const fetchOne = <A, I>(
   return Effect.gen(function* () {
     const url = `${config.apiBaseUrl}${path}`;
 
-    const request = HttpClientRequest.get(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
-    );
+    const request = HttpClientRequest.get(url).pipe(HttpClientRequest.bearerToken(Secret.value(config.clientSecret)));
 
     const response = yield* client.execute(request).pipe(
       Effect.mapError(
@@ -212,9 +210,7 @@ export const deleteOne = (
   return Effect.gen(function* () {
     const url = `${config.apiBaseUrl}${path}`;
 
-    const request = HttpClientRequest.del(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
-    );
+    const request = HttpClientRequest.del(url).pipe(HttpClientRequest.bearerToken(Secret.value(config.clientSecret)));
 
     yield* client.execute(request).pipe(
       Effect.mapError(

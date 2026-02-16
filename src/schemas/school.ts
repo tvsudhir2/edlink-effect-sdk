@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { GradeLevel, Identifier } from "./common.js";
 import { Address } from "./address.js";
+import { GradeLevel, Identifier } from "./common.js";
 import { Product } from "./product.js";
 
 // ---------------------------------------------------------------------------

@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
 import { Effect, Secret } from "effect";
+import { describe, expect, it } from "vitest";
 import { buildAuthorizationUrl, exchangeCode, refreshToken } from "../src/api/v2/oauth.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
-import { makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { tokenResponseFixture } from "./helpers/fixtures.js";
 import type { EdlinkUserConfigData } from "../src/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { tokenResponseFixture } from "./helpers/fixtures.js";
+import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 
 // ---------------------------------------------------------------------------
 // Test config for User/OAuth API
@@ -73,7 +73,10 @@ describe("buildAuthorizationUrl", () => {
 describe("exchangeCode", () => {
   it("POSTs to the token endpoint and returns decoded TokenResponse", async () => {
     let req: any;
-    const client = makeTestHttpClient((r) => { req = r; return ok({ $data: tokenResponseFixture }); });
+    const client = makeTestHttpClient((r) => {
+      req = r;
+      return ok({ $data: tokenResponseFixture });
+    });
     const result = await run(exchangeCode(userConfig, client, "auth-code-xyz"));
 
     expect(req.method).toBe("POST");
@@ -84,13 +87,23 @@ describe("exchangeCode", () => {
   });
 
   it("returns EdlinkApiError on 400", async () => {
-    const err = await runFail(exchangeCode(userConfig, makeTestHttpClient(() => fail(400)), "bad-code"));
+    const err = await runFail(
+      exchangeCode(
+        userConfig,
+        makeTestHttpClient(() => fail(400)),
+        "bad-code",
+      ),
+    );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      exchangeCode(userConfig, makeTestHttpClient(() => ok({ $data: { bad: true } })), "code"),
+      exchangeCode(
+        userConfig,
+        makeTestHttpClient(() => ok({ $data: { bad: true } })),
+        "code",
+      ),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -103,7 +116,10 @@ describe("exchangeCode", () => {
 describe("refreshToken", () => {
   it("POSTs to the token endpoint with refresh_token grant and returns decoded TokenResponse", async () => {
     let req: any;
-    const client = makeTestHttpClient((r) => { req = r; return ok({ $data: tokenResponseFixture }); });
+    const client = makeTestHttpClient((r) => {
+      req = r;
+      return ok({ $data: tokenResponseFixture });
+    });
     const result = await run(refreshToken(userConfig, client, "refresh-xyz-789"));
 
     expect(req.method).toBe("POST");
@@ -113,13 +129,23 @@ describe("refreshToken", () => {
   });
 
   it("returns EdlinkApiError on 401", async () => {
-    const err = await runFail(refreshToken(userConfig, makeTestHttpClient(() => fail(401)), "bad-token"));
+    const err = await runFail(
+      refreshToken(
+        userConfig,
+        makeTestHttpClient(() => fail(401)),
+        "bad-token",
+      ),
+    );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      refreshToken(userConfig, makeTestHttpClient(() => ok({ $data: {} })), "tok"),
+      refreshToken(
+        userConfig,
+        makeTestHttpClient(() => ok({ $data: {} })),
+        "tok",
+      ),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });

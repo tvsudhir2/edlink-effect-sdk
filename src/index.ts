@@ -4,107 +4,103 @@
 
 // Client service & layer
 export { EdlinkClient, EdlinkClientLive } from "./client.js";
-export { EdlinkUserClient, EdlinkUserClientLive } from "./user-client.js";
-export { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 export type { EdlinkConfigData, EdlinkUserConfigData } from "./config.js";
-export { EdlinkLive, EdlinkUserLive } from "./layers.js";
-export { TokenStore, InMemoryTokenStoreLive } from "./token-store.js";
-export type { TokenStoreShape } from "./token-store.js";
-
+export { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 // Errors
 export { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
-
+export { EdlinkLive, EdlinkUserLive } from "./layers.js";
 // Pagination
 export type {
-  PaginationConfig,
+  PaginateAll,
   PaginateByPages,
   PaginateByRecords,
-  PaginateAll,
+  PaginationConfig,
   PaginationState,
 } from "./pagination.js";
-export { shouldContinue, trimItems, deriveNextUrl } from "./pagination.js";
-
-// All schemas & types
-export {
-  // Enums
-  Subject,
-  GradeLevel,
-  Role,
-  Gender,
-  Race,
-  ResidenceStatus,
-  EventType,
-  EventTarget,
-  ClassState,
-  EnrollmentState,
-  SessionType,
-  SessionState,
-  SectionState,
-  AgentRelationship,
-  AssignmentState,
-  AssignmentAssigneeMode,
-  SubmissionState,
-  SubmissionFlag,
-  AttachmentType,
-  ProductState,
-  // Value objects
-  Identifier,
-  Address,
-  Demographics,
-  // Entities
-  Product,
-  License,
-  Attachment,
-  District,
-  School,
-  Course,
-  Session,
-  Section,
-  EdlinkClass,
-  Enrollment,
-  Person,
-  Agent,
-  Assignment,
-  Category,
-  Attempt,
-  Submission,
-  EdlinkEvent,
-  EdlinkEventSchema,
-  // Token / User API
-  TokenResponse,
-  TokenData,
-  UserProfile,
-  // Paginated schemas
-  PaginatedResponseSchema,
-  PaginatedEventsSchema,
-  PaginatedPeopleSchema,
-  PaginatedSchoolsSchema,
-  PaginatedDistrictsSchema,
-  PaginatedCoursesSchema,
-  PaginatedClassesSchema,
-  PaginatedSectionsSchema,
-  PaginatedSessionsSchema,
-  PaginatedEnrollmentsSchema,
-  PaginatedAgentsSchema,
-  PaginatedAssignmentsSchema,
-  PaginatedCategoriesSchema,
-  PaginatedSubmissionsSchema,
-  PaginatedLicensesSchema,
-} from "./schemas/index.js";
-
+export { deriveNextUrl, shouldContinue, trimItems } from "./pagination.js";
 export type {
-  PaginatedEventsResponse,
-  PaginatedPeopleResponse,
-  PaginatedSchoolsResponse,
-  PaginatedDistrictsResponse,
-  PaginatedCoursesResponse,
-  PaginatedClassesResponse,
-  PaginatedSectionsResponse,
-  PaginatedSessionsResponse,
-  PaginatedEnrollmentsResponse,
   PaginatedAgentsResponse,
   PaginatedAssignmentsResponse,
   PaginatedCategoriesResponse,
-  PaginatedSubmissionsResponse,
+  PaginatedClassesResponse,
+  PaginatedCoursesResponse,
+  PaginatedDistrictsResponse,
+  PaginatedEnrollmentsResponse,
+  PaginatedEventsResponse,
   PaginatedLicensesResponse,
+  PaginatedPeopleResponse,
+  PaginatedSchoolsResponse,
+  PaginatedSectionsResponse,
+  PaginatedSessionsResponse,
+  PaginatedSubmissionsResponse,
 } from "./schemas/index.js";
+// All schemas & types
+export {
+  Address,
+  Agent,
+  AgentRelationship,
+  Assignment,
+  AssignmentAssigneeMode,
+  AssignmentState,
+  Attachment,
+  AttachmentType,
+  Attempt,
+  Category,
+  ClassState,
+  Course,
+  Demographics,
+  District,
+  EdlinkClass,
+  EdlinkEvent,
+  EdlinkEventSchema,
+  Enrollment,
+  EnrollmentState,
+  EventTarget,
+  EventType,
+  Gender,
+  GradeLevel,
+  // Value objects
+  Identifier,
+  License,
+  PaginatedAgentsSchema,
+  PaginatedAssignmentsSchema,
+  PaginatedCategoriesSchema,
+  PaginatedClassesSchema,
+  PaginatedCoursesSchema,
+  PaginatedDistrictsSchema,
+  PaginatedEnrollmentsSchema,
+  PaginatedEventsSchema,
+  PaginatedLicensesSchema,
+  PaginatedPeopleSchema,
+  // Paginated schemas
+  PaginatedResponseSchema,
+  PaginatedSchoolsSchema,
+  PaginatedSectionsSchema,
+  PaginatedSessionsSchema,
+  PaginatedSubmissionsSchema,
+  Person,
+  // Entities
+  Product,
+  ProductState,
+  Race,
+  ResidenceStatus,
+  Role,
+  School,
+  Section,
+  SectionState,
+  Session,
+  SessionState,
+  SessionType,
+  // Enums
+  Subject,
+  Submission,
+  SubmissionFlag,
+  SubmissionState,
+  TokenData,
+  // Token / User API
+  TokenResponse,
+  UserProfile,
+} from "./schemas/index.js";
+export type { TokenStoreShape } from "./token-store.js";
+export { InMemoryTokenStoreLive, TokenStore } from "./token-store.js";
+export { EdlinkUserClient, EdlinkUserClientLive } from "./user-client.js";

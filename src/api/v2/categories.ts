@@ -1,15 +1,14 @@
-import { Effect, Stream } from "effect";
-import { HttpClient } from "@effect/platform";
+import type { HttpClient } from "@effect/platform";
+import type { Effect, Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Category } from "../../schemas/category.js";
 import { Category as CategorySchema } from "../../schemas/category.js";
+import { createOne, deleteOne, fetchOne, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
-import { fetchOne, createOne, updateOne, deleteOne } from "./request.js";
 
-const classCategoriesPath = (classId: string) =>
-  `/v2/graph/classes/${classId}/categories`;
+const classCategoriesPath = (classId: string) => `/v2/graph/classes/${classId}/categories`;
 
 const classCategoryPath = (classId: string, categoryId: string) =>
   `/v2/graph/classes/${classId}/categories/${categoryId}`;
@@ -52,5 +51,4 @@ export const deleteCategory = (
   httpClient: HttpClient.HttpClient,
   classId: string,
   categoryId: string,
-): Effect.Effect<void, EdlinkApiError> =>
-  deleteOne(config, httpClient, classCategoryPath(classId, categoryId));
+): Effect.Effect<void, EdlinkApiError> => deleteOne(config, httpClient, classCategoryPath(classId, categoryId));

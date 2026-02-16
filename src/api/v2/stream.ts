@@ -1,13 +1,13 @@
-import { Effect, Stream, Option, Secret, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "@effect/platform";
+import { Effect, Option, Schema, Secret, Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import {
+  deriveNextUrl,
   type PaginationConfig,
   type PaginationState,
   shouldContinue,
   trimItems,
-  deriveNextUrl,
 } from "../../pagination.js";
 import { PaginatedResponseSchema } from "../../schemas/paginated.js";
 

@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { Effect, Layer, Option } from "effect";
-import { TokenStore, InMemoryTokenStoreLive } from "../src/token-store.js";
+import { Effect, Option } from "effect";
+import { describe, expect, it } from "vitest";
 import { TokenData } from "../src/schemas/token.js";
+import { InMemoryTokenStoreLive, TokenStore } from "../src/token-store.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,4 +1,4 @@
-import { Context, Effect, Layer, Ref, HashMap, Option } from "effect";
+import { Context, Effect, HashMap, Layer, type Option, Ref } from "effect";
 import type { TokenData } from "./schemas/token.js";
 
 // ---------------------------------------------------------------------------
@@ -23,10 +23,7 @@ export interface TokenStoreShape {
   readonly delete: (userId: string) => Effect.Effect<void>;
 }
 
-export class TokenStore extends Context.Tag("TokenStore")<
-  TokenStore,
-  TokenStoreShape
->() {}
+export class TokenStore extends Context.Tag("TokenStore")<TokenStore, TokenStoreShape>() {}
 
 // ---------------------------------------------------------------------------
 // InMemoryTokenStore — default implementation
@@ -44,16 +41,12 @@ export const InMemoryTokenStoreLive: Layer.Layer<TokenStore> = Layer.effect(
     const storeRef = yield* Ref.make(HashMap.empty<string, TokenData>());
 
     return {
-      get: (userId: string) =>
-        Ref.get(storeRef).pipe(
-          Effect.map((store) => HashMap.get(store, userId)),
-        ),
+      get: (userId: string) => Ref.get(storeRef).pipe(Effect.map((store) => HashMap.get(store, userId))),
 
       set: (userId: string, tokenData: TokenData) =>
         Ref.update(storeRef, (store) => HashMap.set(store, userId, tokenData)),
 
-      delete: (userId: string) =>
-        Ref.update(storeRef, (store) => HashMap.remove(store, userId)),
+      delete: (userId: string) => Ref.update(storeRef, (store) => HashMap.remove(store, userId)),
     };
   }),
 );

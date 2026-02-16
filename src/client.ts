@@ -1,36 +1,36 @@
-import { Effect, Context, Layer, Stream } from "effect";
 import { HttpClient } from "@effect/platform";
-import { EdlinkConfig } from "./config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
-import type { PaginationConfig } from "./pagination.js";
-import type { EdlinkEvent } from "./schemas/event.js";
-import type { District } from "./schemas/district.js";
-import type { School } from "./schemas/school.js";
-import type { Course } from "./schemas/course.js";
-import type { Session } from "./schemas/session.js";
-import type { Section } from "./schemas/section.js";
-import type { EdlinkClass } from "./schemas/class.js";
-import type { Enrollment } from "./schemas/enrollment.js";
-import type { Person } from "./schemas/person.js";
-import type { Agent } from "./schemas/agent.js";
-import type { License } from "./schemas/license.js";
-import type { Assignment } from "./schemas/assignment.js";
-import type { Category } from "./schemas/category.js";
-import type { Submission } from "./schemas/submission.js";
-import { createEventsStream } from "./api/v2/events.js";
-import * as DistrictsApi from "./api/v2/districts.js";
-import * as SchoolsApi from "./api/v2/schools.js";
-import * as CoursesApi from "./api/v2/courses.js";
-import * as SessionsApi from "./api/v2/sessions.js";
-import * as SectionsApi from "./api/v2/sections.js";
-import * as ClassesApi from "./api/v2/classes.js";
-import * as PeopleApi from "./api/v2/people.js";
-import * as EnrollmentsApi from "./api/v2/enrollments.js";
+import { Context, Effect, Layer, type Stream } from "effect";
 import * as AgentsApi from "./api/v2/agents.js";
-import * as LicensesApi from "./api/v2/licenses.js";
 import * as AssignmentsApi from "./api/v2/assignments.js";
 import * as CategoriesApi from "./api/v2/categories.js";
+import * as ClassesApi from "./api/v2/classes.js";
+import * as CoursesApi from "./api/v2/courses.js";
+import * as DistrictsApi from "./api/v2/districts.js";
+import * as EnrollmentsApi from "./api/v2/enrollments.js";
+import { createEventsStream } from "./api/v2/events.js";
+import * as LicensesApi from "./api/v2/licenses.js";
+import * as PeopleApi from "./api/v2/people.js";
+import * as SchoolsApi from "./api/v2/schools.js";
+import * as SectionsApi from "./api/v2/sections.js";
+import * as SessionsApi from "./api/v2/sessions.js";
 import * as SubmissionsApi from "./api/v2/submissions.js";
+import { EdlinkConfig } from "./config.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
+import type { PaginationConfig } from "./pagination.js";
+import type { Agent } from "./schemas/agent.js";
+import type { Assignment } from "./schemas/assignment.js";
+import type { Category } from "./schemas/category.js";
+import type { EdlinkClass } from "./schemas/class.js";
+import type { Course } from "./schemas/course.js";
+import type { District } from "./schemas/district.js";
+import type { Enrollment } from "./schemas/enrollment.js";
+import type { EdlinkEvent } from "./schemas/event.js";
+import type { License } from "./schemas/license.js";
+import type { Person } from "./schemas/person.js";
+import type { School } from "./schemas/school.js";
+import type { Section } from "./schemas/section.js";
+import type { Session } from "./schemas/session.js";
+import type { Submission } from "./schemas/submission.js";
 
 // ---------------------------------------------------------------------------
 // Error union shorthand
@@ -119,7 +119,11 @@ interface AssignmentsService {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Assignment, ApiErrors>;
   readonly fetch: (classId: string, assignmentId: string) => Effect.Effect<Assignment, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Assignment, ApiErrors>;
-  readonly update: (classId: string, assignmentId: string, body: Record<string, unknown>) => Effect.Effect<Assignment, ApiErrors>;
+  readonly update: (
+    classId: string,
+    assignmentId: string,
+    body: Record<string, unknown>,
+  ) => Effect.Effect<Assignment, ApiErrors>;
   readonly delete: (classId: string, assignmentId: string) => Effect.Effect<void, EdlinkApiError>;
 }
 
@@ -127,17 +131,38 @@ interface CategoriesService {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Category, ApiErrors>;
   readonly fetch: (classId: string, categoryId: string) => Effect.Effect<Category, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Category, ApiErrors>;
-  readonly update: (classId: string, categoryId: string, body: Record<string, unknown>) => Effect.Effect<Category, ApiErrors>;
+  readonly update: (
+    classId: string,
+    categoryId: string,
+    body: Record<string, unknown>,
+  ) => Effect.Effect<Category, ApiErrors>;
   readonly delete: (classId: string, categoryId: string) => Effect.Effect<void, EdlinkApiError>;
 }
 
 interface SubmissionsService {
-  readonly list: (classId: string, assignmentId: string, config?: PaginationConfig) => Stream.Stream<Submission, ApiErrors>;
+  readonly list: (
+    classId: string,
+    assignmentId: string,
+    config?: PaginationConfig,
+  ) => Stream.Stream<Submission, ApiErrors>;
   readonly fetch: (classId: string, assignmentId: string, submissionId: string) => Effect.Effect<Submission, ApiErrors>;
-  readonly submit: (classId: string, assignmentId: string, body: Record<string, unknown>) => Effect.Effect<Submission, ApiErrors>;
+  readonly submit: (
+    classId: string,
+    assignmentId: string,
+    body: Record<string, unknown>,
+  ) => Effect.Effect<Submission, ApiErrors>;
   readonly reclaim: (classId: string, assignmentId: string) => Effect.Effect<Submission, ApiErrors>;
-  readonly return: (classId: string, assignmentId: string, submissionId: string) => Effect.Effect<Submission, ApiErrors>;
-  readonly update: (classId: string, assignmentId: string, submissionId: string, body: Record<string, unknown>) => Effect.Effect<Submission, ApiErrors>;
+  readonly return: (
+    classId: string,
+    assignmentId: string,
+    submissionId: string,
+  ) => Effect.Effect<Submission, ApiErrors>;
+  readonly update: (
+    classId: string,
+    assignmentId: string,
+    submissionId: string,
+    body: Record<string, unknown>,
+  ) => Effect.Effect<Submission, ApiErrors>;
 }
 
 // ---------------------------------------------------------------------------
@@ -192,8 +217,7 @@ const makeEdlinkClient = Effect.gen(function* () {
   const pg = (p?: PaginationConfig) => p ?? defaultPagination;
 
   return {
-    getEventsStream: (pagination?: PaginationConfig) =>
-      createEventsStream(edlinkConfig, httpClient, pg(pagination)),
+    getEventsStream: (pagination?: PaginationConfig) => createEventsStream(edlinkConfig, httpClient, pg(pagination)),
 
     districts: {
       list: (p?: PaginationConfig) => DistrictsApi.listDistricts(edlinkConfig, httpClient, pg(p)),
@@ -340,8 +364,7 @@ const makeEdlinkClient = Effect.gen(function* () {
 // ---------------------------------------------------------------------------
 
 /** Live layer — requires `EdlinkConfig` and `HttpClient` from context */
-export const EdlinkClientLive: Layer.Layer<
+export const EdlinkClientLive: Layer.Layer<EdlinkClient, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
   EdlinkClient,
-  never,
-  EdlinkConfig | HttpClient.HttpClient
-> = Layer.effect(EdlinkClient, makeEdlinkClient);
+  makeEdlinkClient,
+);

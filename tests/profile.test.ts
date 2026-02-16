@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
 import { Effect } from "effect";
+import { describe, expect, it } from "vitest";
 import { fetchMyProfile } from "../src/api/v2/profile.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
-import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 import { userProfileFixture } from "./helpers/fixtures.js";
+import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -25,7 +25,10 @@ const fail = (status: number) => ({ status, body: { error: "err" } });
 describe("fetchMyProfile", () => {
   it("GETs /v2/my/profile with bearer token and decodes UserProfile", async () => {
     let req: any;
-    const client = makeTestHttpClient((r) => { req = r; return ok({ $data: userProfileFixture }); });
+    const client = makeTestHttpClient((r) => {
+      req = r;
+      return ok({ $data: userProfileFixture });
+    });
     const result = await run(fetchMyProfile(BASE_URL, client, ACCESS_TOKEN));
 
     expect(req.method).toBe("GET");
@@ -38,13 +41,23 @@ describe("fetchMyProfile", () => {
   });
 
   it("returns EdlinkApiError on 401", async () => {
-    const err = await runFail(fetchMyProfile(BASE_URL, makeTestHttpClient(() => fail(401)), ACCESS_TOKEN));
+    const err = await runFail(
+      fetchMyProfile(
+        BASE_URL,
+        makeTestHttpClient(() => fail(401)),
+        ACCESS_TOKEN,
+      ),
+    );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      fetchMyProfile(BASE_URL, makeTestHttpClient(() => ok({ $data: { id: "x" } })), ACCESS_TOKEN),
+      fetchMyProfile(
+        BASE_URL,
+        makeTestHttpClient(() => ok({ $data: { id: "x" } })),
+        ACCESS_TOKEN,
+      ),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });

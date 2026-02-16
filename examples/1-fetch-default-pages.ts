@@ -7,8 +7,9 @@
  *
  * Run: pnpm ex-1
  */
-import { Effect, Stream, Chunk, Duration } from "effect";
+
 import { NodeRuntime } from "@effect/platform-node";
+import { Chunk, Duration, Effect, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -17,18 +18,11 @@ const program = Effect.gen(function* () {
 
   const client = yield* EdlinkClient;
 
-  const events = yield* client
-    .getEventsStream()
-    .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+  const events = yield* client.getEventsStream().pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
   yield* Effect.log(`Fetched ${events.length} events`);
 
-  yield* Effect.forEach(events.slice(0, 3), (evt, idx) =>
-    Effect.log(`  ${idx + 1}. id=${evt.id}  type=${evt.type}`),
-  );
-}).pipe(
-  Effect.provide(EdlinkLive),
-  Effect.timeout(Duration.seconds(12)),
-);
+  yield* Effect.forEach(events.slice(0, 3), (evt, idx) => Effect.log(`  ${idx + 1}. id=${evt.id}  type=${evt.type}`));
+}).pipe(Effect.provide(EdlinkLive), Effect.timeout(Duration.seconds(12)));
 
 NodeRuntime.runMain(program);

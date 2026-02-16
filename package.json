@@ -36,7 +36,10 @@
     "ex-4": "tsx --env-file=.env.local examples/4-list-assignments.ts",
     "ex-5": "tsx --env-file=.env.local examples/5-create-assignment.ts",
     "ex-6": "tsx --env-file=.env.local examples/6-update-assignment.ts",
-    "ex-7": "tsx --env-file=.env.local examples/7-delete-assignment.ts"
+    "ex-7": "tsx --env-file=.env.local examples/7-delete-assignment.ts",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "check": "biome check --write ."
   },
   "keywords": [
     "edlink",
@@ -55,6 +58,7 @@
     "effect": "^3.19.13"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.0",
     "@vitest/coverage-v8": "^2.1.9",
     "tsx": "^4.21.0",
     "typescript": "^5.0.0",

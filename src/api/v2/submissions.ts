@@ -1,12 +1,12 @@
-import { Effect, Stream } from "effect";
-import { HttpClient } from "@effect/platform";
+import type { HttpClient } from "@effect/platform";
+import type { Effect, Stream } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Submission } from "../../schemas/submission.js";
 import { Submission as SubmissionSchema } from "../../schemas/submission.js";
+import { createOne, fetchOne, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
-import { fetchOne, createOne, updateOne } from "./request.js";
 
 const submissionsPath = (classId: string, assignmentId: string) =>
   `/v2/graph/classes/${classId}/assignments/${assignmentId}/submissions`;
@@ -68,13 +68,7 @@ export const returnSubmission = (
   assignmentId: string,
   submissionId: string,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
-  createOne(
-    config,
-    httpClient,
-    `${submissionPath(classId, assignmentId, submissionId)}/return`,
-    SubmissionSchema,
-    {},
-  );
+  createOne(config, httpClient, `${submissionPath(classId, assignmentId, submissionId)}/return`, SubmissionSchema, {});
 
 export const updateSubmission = (
   config: EdlinkConfigData,

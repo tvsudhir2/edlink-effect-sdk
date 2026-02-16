@@ -1,13 +1,12 @@
-import { Effect, Context, Layer, Option } from "effect";
 import { HttpClient } from "@effect/platform";
-import { EdlinkUserConfig } from "./config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
-import { TokenStore } from "./token-store.js";
-import { TokenData } from "./schemas/token.js";
-import type { UserProfile } from "./schemas/token.js";
-import type { TokenResponse } from "./schemas/token.js";
+import { Context, Effect, Layer, Option } from "effect";
 import * as OAuth from "./api/v2/oauth.js";
 import * as ProfileApi from "./api/v2/profile.js";
+import { EdlinkUserConfig } from "./config.js";
+import { EdlinkApiError, type EdlinkDecodeError } from "./errors.js";
+import type { TokenResponse, UserProfile } from "./schemas/token.js";
+import { TokenData } from "./schemas/token.js";
+import { TokenStore } from "./token-store.js";
 
 // ---------------------------------------------------------------------------
 // Error union shorthand
@@ -123,11 +122,7 @@ const makeEdlinkUserClient = Effect.gen(function* () {
         const tokenResponse = yield* OAuth.exchangeCode(userConfig, httpClient, code);
 
         // Extract user ID from profile to key the token store
-        const profile = yield* ProfileApi.fetchMyProfile(
-          userConfig.apiBaseUrl,
-          httpClient,
-          tokenResponse.access_token,
-        );
+        const profile = yield* ProfileApi.fetchMyProfile(userConfig.apiBaseUrl, httpClient, tokenResponse.access_token);
 
         const tokenData = tokenDataFromResponse(tokenResponse);
         yield* tokenStore.set(profile.id, tokenData);
@@ -147,15 +142,10 @@ const makeEdlinkUserClient = Effect.gen(function* () {
           });
         }
 
-        return yield* ProfileApi.fetchMyProfile(
-          userConfig.apiBaseUrl,
-          httpClient,
-          maybeToken.value,
-        );
+        return yield* ProfileApi.fetchMyProfile(userConfig.apiBaseUrl, httpClient, maybeToken.value);
       }),
 
-    storeTokens: (userId: string, tokenData: TokenData) =>
-      tokenStore.set(userId, tokenData),
+    storeTokens: (userId: string, tokenData: TokenData) => tokenStore.set(userId, tokenData),
 
     removeTokens: (userId: string) => tokenStore.delete(userId),
   };

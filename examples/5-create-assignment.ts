@@ -8,8 +8,9 @@
  *
  * Run: pnpm ex-5
  */
-import { Effect, Duration, Config } from "effect";
+
 import { NodeRuntime } from "@effect/platform-node";
+import { Config, Duration, Effect } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -38,9 +39,6 @@ const program = Effect.gen(function* () {
   yield* Effect.log(`  title = ${assignment.title}`);
   yield* Effect.log(`  state = ${assignment.state}`);
   yield* Effect.log(`  due   = ${assignment.due_date}`);
-}).pipe(
-  Effect.provide(EdlinkLive),
-  Effect.timeout(Duration.seconds(12)),
-);
+}).pipe(Effect.provide(EdlinkLive), Effect.timeout(Duration.seconds(12)));
 
 NodeRuntime.runMain(program);

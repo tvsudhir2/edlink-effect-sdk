@@ -1,5 +1,5 @@
-import { Effect, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "@effect/platform";
+import { Effect, Schema } from "effect";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { UserProfile } from "../../schemas/token.js";
 
@@ -31,9 +31,7 @@ export const fetchMyProfile = (
   return Effect.gen(function* () {
     const url = `${apiBaseUrl}/v2/my/profile`;
 
-    const request = HttpClientRequest.get(url).pipe(
-      HttpClientRequest.bearerToken(accessToken),
-    );
+    const request = HttpClientRequest.get(url).pipe(HttpClientRequest.bearerToken(accessToken));
 
     const response = yield* client.execute(request).pipe(
       Effect.mapError(
