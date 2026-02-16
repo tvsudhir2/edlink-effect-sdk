@@ -1,11 +1,9 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Category } from "../../schemas/category.js";
 import { Category as CategorySchema } from "../../schemas/category.js";
-import { createOne, deleteOne, fetchOne, updateOne } from "./request.js";
+import { createOne, deleteOne, fetchOne, type RequestContext, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const classCategoriesPath = (classId: string) => `/v2/graph/classes/${classId}/categories`;
@@ -13,42 +11,73 @@ const classCategoriesPath = (classId: string) => `/v2/graph/classes/${classId}/c
 const classCategoryPath = (classId: string, categoryId: string) =>
   `/v2/graph/classes/${classId}/categories/${categoryId}`;
 
+// ---------------------------------------------------------------------------
+// Options types
+// ---------------------------------------------------------------------------
+
+export interface ListCategoriesOptions {
+  readonly classId: string;
+  readonly pagination: PaginationConfig;
+}
+
+export interface FetchCategoryOptions {
+  readonly classId: string;
+  readonly categoryId: string;
+}
+
+export interface CreateCategoryOptions {
+  readonly classId: string;
+  readonly body: Record<string, unknown>;
+}
+
+export interface UpdateCategoryOptions {
+  readonly classId: string;
+  readonly categoryId: string;
+  readonly body: Record<string, unknown>;
+}
+
+export interface DeleteCategoryOptions {
+  readonly classId: string;
+  readonly categoryId: string;
+}
+
+// ---------------------------------------------------------------------------
+// API functions
+// ---------------------------------------------------------------------------
+
 export const listCategories = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  pagination: PaginationConfig,
+  options: ListCategoriesOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Category, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, classCategoriesPath(classId), CategorySchema, pagination);
+  createPaginatedStream(
+    { path: classCategoriesPath(options.classId), schema: CategorySchema },
+    options.pagination,
+    ctx,
+  );
 
 export const fetchCategory = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  categoryId: string,
+  options: FetchCategoryOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Category, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, classCategoryPath(classId, categoryId), CategorySchema);
+  fetchOne({ path: classCategoryPath(options.classId, options.categoryId), schema: CategorySchema }, ctx);
 
 export const createCategory = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  body: Record<string, unknown>,
+  options: CreateCategoryOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Category, EdlinkApiError | EdlinkDecodeError> =>
-  createOne(config, httpClient, classCategoriesPath(classId), CategorySchema, body);
+  createOne({ path: classCategoriesPath(options.classId), schema: CategorySchema }, options.body, ctx);
 
 export const updateCategory = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  categoryId: string,
-  body: Record<string, unknown>,
+  options: UpdateCategoryOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Category, EdlinkApiError | EdlinkDecodeError> =>
-  updateOne(config, httpClient, classCategoryPath(classId, categoryId), CategorySchema, body);
+  updateOne(
+    { path: classCategoryPath(options.classId, options.categoryId), schema: CategorySchema },
+    options.body,
+    ctx,
+  );
 
 export const deleteCategory = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  categoryId: string,
-): Effect.Effect<void, EdlinkApiError> => deleteOne(config, httpClient, classCategoryPath(classId, categoryId));
+  options: DeleteCategoryOptions,
+  ctx: RequestContext,
+): Effect.Effect<void, EdlinkApiError> => deleteOne(classCategoryPath(options.classId, options.categoryId), ctx);

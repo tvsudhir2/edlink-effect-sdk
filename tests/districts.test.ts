@@ -10,7 +10,7 @@ import {
   personFixture2,
 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -40,7 +40,7 @@ describe("fetchDistrict", () => {
       req = r;
       return single(districtFixture);
     });
-    const result = await run(fetchDistrict(testConfig, client, DIST));
+    const result = await run(fetchDistrict(DIST, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/districts/${DIST}`);
@@ -50,22 +50,10 @@ describe("fetchDistrict", () => {
   });
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
-    const err404 = await runFail(
-      fetchDistrict(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        DIST,
-      ),
-    );
+    const err404 = await runFail(fetchDistrict(DIST, makeCtx(makeTestHttpClient(() => fail(404)))));
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
-    const errDecode = await runFail(
-      fetchDistrict(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        DIST,
-      ),
-    );
+    const errDecode = await runFail(fetchDistrict(DIST, makeCtx(makeTestHttpClient(() => single({ id: "x" })))));
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
 });
@@ -76,13 +64,7 @@ describe("fetchDistrict", () => {
 
 describe("listDistricts", () => {
   it("streams items across pages", async () => {
-    const empty = await collect(
-      listDistricts(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        { type: "all" },
-      ),
-    );
+    const empty = await collect(listDistricts({ type: "all" }, makeCtx(makeTestHttpClient(() => page([])))));
     expect(empty).toHaveLength(0);
 
     let calls = 0;
@@ -90,7 +72,7 @@ describe("listDistricts", () => {
       calls++;
       return calls === 1 ? page([districtFixture], `${BASE}/next?cursor=p2`) : page([districtFixture2]);
     };
-    const items = await collect(listDistricts(testConfig, makeTestHttpClient(multi), { type: "all" }));
+    const items = await collect(listDistricts({ type: "all" }, makeCtx(makeTestHttpClient(multi))));
     expect(items).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -99,12 +81,13 @@ describe("listDistricts", () => {
     let pc = 0;
     const byPages = await collect(
       listDistricts(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...districtFixture, id: `d-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
         { type: "pages", maxPages: 2 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...districtFixture, id: `d-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -113,19 +96,20 @@ describe("listDistricts", () => {
     let rc = 0;
     const byRecs = await collect(
       listDistricts(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...districtFixture, id: `r-${rc}a` },
-              { ...districtFixture2, id: `r-${rc}b` },
-              { ...districtFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
         { type: "records", maxRecords: 5 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...districtFixture, id: `r-${rc}a` },
+                { ...districtFixture2, id: `r-${rc}b` },
+                { ...districtFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -133,21 +117,11 @@ describe("listDistricts", () => {
   });
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
-    const err = await collectFail(
-      listDistricts(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        { type: "all" },
-      ),
-    );
+    const err = await collectFail(listDistricts({ type: "all" }, makeCtx(makeTestHttpClient(() => fail(500)))));
     expect(err).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
-      listDistricts(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        { type: "all" },
-      ),
+      listDistricts({ type: "all" }, makeCtx(makeTestHttpClient(() => page([{ id: "bad" }])))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -162,13 +136,13 @@ describe("listDistrictAdministrators", () => {
     let req: any;
     const items = await collect(
       listDistrictAdministrators(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([personFixture, personFixture2]);
-        }),
-        DIST,
-        { type: "all" },
+        { districtId: DIST, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([personFixture, personFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/districts/${DIST}/administrators`);

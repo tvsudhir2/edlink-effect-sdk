@@ -1,25 +1,21 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Agent } from "../../schemas/agent.js";
 import { Agent as AgentSchema } from "../../schemas/agent.js";
-import { fetchOne } from "./request.js";
+import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const BASE = "/v2/graph/agents";
 
 export const listAgents = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
+  ctx: RequestContext,
 ): Stream.Stream<Agent, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, AgentSchema, pagination);
+  createPaginatedStream({ path: BASE, schema: AgentSchema }, pagination, ctx);
 
 export const fetchAgent = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   agentId: string,
+  ctx: RequestContext,
 ): Effect.Effect<Agent, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, `${BASE}/${agentId}`, AgentSchema);
+  fetchOne({ path: `${BASE}/${agentId}`, schema: AgentSchema }, ctx);

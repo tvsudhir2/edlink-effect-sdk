@@ -2,6 +2,9 @@
 // edlink-effect-sdk — public API
 // ---------------------------------------------------------------------------
 
+export type { AuthorizationUrlOptions, UserRequestContext } from "./api/v2/oauth.js";
+// API helpers — request context types
+export type { EndpointOptions, RequestContext } from "./api/v2/request.js";
 // Client service & layer
 export { EdlinkClient, EdlinkClientLive } from "./client.js";
 export type { EdlinkConfigData, EdlinkUserConfigData } from "./config.js";
@@ -11,6 +14,7 @@ export { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
 export { EdlinkLive, EdlinkUserLive } from "./layers.js";
 // Pagination
 export type {
+  PageResultOptions,
   PaginateAll,
   PaginateByPages,
   PaginateByRecords,

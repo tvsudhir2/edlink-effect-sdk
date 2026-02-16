@@ -11,7 +11,7 @@ import {
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { submissionFixture, submissionFixture2, submissionFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -43,7 +43,7 @@ describe("fetchSubmission", () => {
       req = r;
       return single(submissionFixture);
     });
-    const result = await run(fetchSubmission(testConfig, client, CLS, ASGN, SUB));
+    const result = await run(fetchSubmission({ classId: CLS, assignmentId: ASGN, submissionId: SUB }, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}/submissions/${SUB}`);
@@ -55,22 +55,16 @@ describe("fetchSubmission", () => {
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
     const err404 = await runFail(
       fetchSubmission(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-        SUB,
+        { classId: CLS, assignmentId: ASGN, submissionId: SUB },
+        makeCtx(makeTestHttpClient(() => fail(404))),
       ),
     );
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await runFail(
       fetchSubmission(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-        ASGN,
-        SUB,
+        { classId: CLS, assignmentId: ASGN, submissionId: SUB },
+        makeCtx(makeTestHttpClient(() => single({ id: "x" }))),
       ),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
@@ -90,7 +84,7 @@ describe("submitAttempt", () => {
       req = r;
       return single(submissionFixture);
     });
-    const result = await run(submitAttempt(testConfig, client, CLS, ASGN, body));
+    const result = await run(submitAttempt({ classId: CLS, assignmentId: ASGN, body }, makeCtx(client)));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}/submit`);
@@ -100,13 +94,7 @@ describe("submitAttempt", () => {
 
   it("returns EdlinkApiError on 400", async () => {
     const err = await runFail(
-      submitAttempt(
-        testConfig,
-        makeTestHttpClient(() => fail(400)),
-        CLS,
-        ASGN,
-        body,
-      ),
+      submitAttempt({ classId: CLS, assignmentId: ASGN, body }, makeCtx(makeTestHttpClient(() => fail(400)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -124,7 +112,7 @@ describe("reclaimSubmission", () => {
       req = r;
       return single(reclaimed);
     });
-    const result = await run(reclaimSubmission(testConfig, client, CLS, ASGN));
+    const result = await run(reclaimSubmission({ classId: CLS, assignmentId: ASGN }, makeCtx(client)));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}/reclaim`);
@@ -133,12 +121,7 @@ describe("reclaimSubmission", () => {
 
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
-      reclaimSubmission(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-      ),
+      reclaimSubmission({ classId: CLS, assignmentId: ASGN }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -156,7 +139,9 @@ describe("returnSubmission", () => {
       req = r;
       return single(returned);
     });
-    const result = await run(returnSubmission(testConfig, client, CLS, ASGN, SUB));
+    const result = await run(
+      returnSubmission({ classId: CLS, assignmentId: ASGN, submissionId: SUB }, makeCtx(client)),
+    );
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}/submissions/${SUB}/return`);
@@ -166,11 +151,8 @@ describe("returnSubmission", () => {
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
       returnSubmission(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-        SUB,
+        { classId: CLS, assignmentId: ASGN, submissionId: SUB },
+        makeCtx(makeTestHttpClient(() => fail(404))),
       ),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
@@ -191,7 +173,9 @@ describe("updateSubmission", () => {
       req = r;
       return single(updated);
     });
-    const result = await run(updateSubmission(testConfig, client, CLS, ASGN, SUB, patch));
+    const result = await run(
+      updateSubmission({ classId: CLS, assignmentId: ASGN, submissionId: SUB, body: patch }, makeCtx(client)),
+    );
 
     expect(req.method).toBe("PATCH");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}/submissions/${SUB}`);
@@ -202,12 +186,8 @@ describe("updateSubmission", () => {
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
       updateSubmission(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-        SUB,
-        patch,
+        { classId: CLS, assignmentId: ASGN, submissionId: SUB, body: patch },
+        makeCtx(makeTestHttpClient(() => fail(404))),
       ),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
@@ -222,22 +202,16 @@ describe("listSubmissions", () => {
   it("streams items across pages; returns empty for no data", async () => {
     const empty = await collect(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        CLS,
-        ASGN,
-        { type: "all" },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([]))),
       ),
     );
     expect(empty).toHaveLength(0);
 
     const items = await collect(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => page([submissionFixture, submissionFixture2])),
-        CLS,
-        ASGN,
-        { type: "all" },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([submissionFixture, submissionFixture2]))),
       ),
     );
     expect(items).toHaveLength(2);
@@ -249,7 +223,10 @@ describe("listSubmissions", () => {
       return calls === 1 ? page([submissionFixture], `${BASE}/next?cursor=p2`) : page([submissionFixture2]);
     };
     const multiItems = await collect(
-      listSubmissions(testConfig, makeTestHttpClient(multi), CLS, ASGN, { type: "all" }),
+      listSubmissions(
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(multi)),
+      ),
     );
     expect(multiItems).toHaveLength(2);
     expect(calls).toBe(2);
@@ -259,14 +236,13 @@ describe("listSubmissions", () => {
     let pc = 0;
     const byPages = await collect(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...submissionFixture, id: `s-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
-        CLS,
-        ASGN,
-        { type: "pages", maxPages: 2 },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "pages", maxPages: 2 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...submissionFixture, id: `s-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -275,21 +251,20 @@ describe("listSubmissions", () => {
     let rc = 0;
     const byRecs = await collect(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...submissionFixture, id: `r-${rc}a` },
-              { ...submissionFixture2, id: `r-${rc}b` },
-              { ...submissionFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
-        CLS,
-        ASGN,
-        { type: "records", maxRecords: 5 },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "records", maxRecords: 5 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...submissionFixture, id: `r-${rc}a` },
+                { ...submissionFixture2, id: `r-${rc}b` },
+                { ...submissionFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -299,22 +274,16 @@ describe("listSubmissions", () => {
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
     const err500 = await collectFail(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        CLS,
-        ASGN,
-        { type: "all" },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => fail(500))),
       ),
     );
     expect(err500).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
       listSubmissions(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        CLS,
-        ASGN,
-        { type: "all" },
+        { classId: CLS, assignmentId: ASGN, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([{ id: "bad" }]))),
       ),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);

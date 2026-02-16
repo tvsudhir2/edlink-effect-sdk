@@ -1,6 +1,4 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Enrollment } from "../../schemas/enrollment.js";
@@ -9,53 +7,60 @@ import type { Person } from "../../schemas/person.js";
 import { Person as PersonSchema } from "../../schemas/person.js";
 import type { Section } from "../../schemas/section.js";
 import { Section as SectionSchema } from "../../schemas/section.js";
-import { fetchOne } from "./request.js";
+import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const BASE = "/v2/graph/sections";
 
+export interface ListSectionSubResourceOptions {
+  readonly sectionId: string;
+  readonly pagination: PaginationConfig;
+}
+
 export const listSections = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
+  ctx: RequestContext,
 ): Stream.Stream<Section, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, SectionSchema, pagination);
+  createPaginatedStream({ path: BASE, schema: SectionSchema }, pagination, ctx);
 
 export const fetchSection = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   sectionId: string,
+  ctx: RequestContext,
 ): Effect.Effect<Section, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, `${BASE}/${sectionId}`, SectionSchema);
+  fetchOne({ path: `${BASE}/${sectionId}`, schema: SectionSchema }, ctx);
 
 export const listSectionEnrollments = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  sectionId: string,
-  pagination: PaginationConfig,
+  options: ListSectionSubResourceOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Enrollment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${sectionId}/enrollments`, EnrollmentSchema, pagination);
+  createPaginatedStream(
+    { path: `${BASE}/${options.sectionId}/enrollments`, schema: EnrollmentSchema },
+    options.pagination,
+    ctx,
+  );
 
 export const listSectionPeople = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  sectionId: string,
-  pagination: PaginationConfig,
+  options: ListSectionSubResourceOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${sectionId}/people`, PersonSchema, pagination);
+  createPaginatedStream({ path: `${BASE}/${options.sectionId}/people`, schema: PersonSchema }, options.pagination, ctx);
 
 export const listSectionTeachers = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  sectionId: string,
-  pagination: PaginationConfig,
+  options: ListSectionSubResourceOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${sectionId}/teachers`, PersonSchema, pagination);
+  createPaginatedStream(
+    { path: `${BASE}/${options.sectionId}/teachers`, schema: PersonSchema },
+    options.pagination,
+    ctx,
+  );
 
 export const listSectionStudents = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  sectionId: string,
-  pagination: PaginationConfig,
+  options: ListSectionSubResourceOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Person, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${sectionId}/students`, PersonSchema, pagination);
+  createPaginatedStream(
+    { path: `${BASE}/${options.sectionId}/students`, schema: PersonSchema },
+    options.pagination,
+    ctx,
+  );

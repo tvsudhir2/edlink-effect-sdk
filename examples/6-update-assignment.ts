@@ -26,10 +26,14 @@ const program = Effect.gen(function* () {
   yield* Effect.log(`Before: title="${before.title}"  points=${before.points_possible}`);
 
   // Update: change title, increase points, extend due date
-  const updated = yield* client.assignments.update(classId, assignmentId, {
-    title: "Chapter 5 Reading Quiz (Extended)",
-    points_possible: 25,
-    due_date: "2026-03-08T23:59:00.000Z",
+  const updated = yield* client.assignments.update({
+    classId,
+    assignmentId,
+    body: {
+      title: "Chapter 5 Reading Quiz (Extended)",
+      points_possible: 25,
+      due_date: "2026-03-08T23:59:00.000Z",
+    },
   });
 
   yield* Effect.log(`After:  title="${updated.title}"  points=${updated.points_possible}`);

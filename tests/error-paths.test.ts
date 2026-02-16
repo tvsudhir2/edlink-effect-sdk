@@ -15,7 +15,7 @@ import { fetchMyProfile } from "../src/api/v2/profile.js";
 import type { EdlinkUserConfigData } from "../src/config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -27,8 +27,6 @@ const userConfig: EdlinkUserConfigData = {
   redirectUri: "http://localhost:3000/callback",
   apiBaseUrl: "https://test.edlink.api",
 };
-
-const BASE = userConfig.apiBaseUrl;
 
 const make500Client = () => makeTestHttpClient(() => ({ status: 500, body: { error: "Server Error" } }));
 
@@ -43,11 +41,11 @@ const makeBadSchemaClient = () => makeTestHttpClient(() => ({ status: 200, body:
 /** Flip all five functions against the given client and return their errors */
 const collectErrors = (client: HttpClient.HttpClient) =>
   Effect.all([
-    fetchAgent(testConfig, client, "a1").pipe(Effect.flip),
-    updateAssignment(testConfig, client, "c1", "a1", { title: "x" }).pipe(Effect.flip),
-    exchangeCode(userConfig, client, "code").pipe(Effect.flip),
-    refreshToken(userConfig, client, "tok").pipe(Effect.flip),
-    fetchMyProfile(BASE, client, "tok").pipe(Effect.flip),
+    fetchAgent("a1", makeCtx(client)).pipe(Effect.flip),
+    updateAssignment({ classId: "c1", assignmentId: "a1", body: { title: "x" } }, makeCtx(client)).pipe(Effect.flip),
+    exchangeCode("code", { config: userConfig, httpClient: client }).pipe(Effect.flip),
+    refreshToken("tok", { config: userConfig, httpClient: client }).pipe(Effect.flip),
+    fetchMyProfile("tok", { config: userConfig, httpClient: client }).pipe(Effect.flip),
   ]);
 
 // ---------------------------------------------------------------------------

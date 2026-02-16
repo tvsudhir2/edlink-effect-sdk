@@ -9,7 +9,7 @@ import {
 } from "../src/api/v2/assignments.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Fixtures — domain-specific, colocated with tests
@@ -71,7 +71,7 @@ describe("fetchAssignment", () => {
       req = r;
       return single(assignmentFixture);
     });
-    const result = await run(fetchAssignment(testConfig, client, CLS, ASGN));
+    const result = await run(fetchAssignment({ classId: CLS, assignmentId: ASGN }, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}`);
@@ -83,22 +83,12 @@ describe("fetchAssignment", () => {
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
     const err404 = await runFail(
-      fetchAssignment(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-      ),
+      fetchAssignment({ classId: CLS, assignmentId: ASGN }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await runFail(
-      fetchAssignment(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-        ASGN,
-      ),
+      fetchAssignment({ classId: CLS, assignmentId: ASGN }, makeCtx(makeTestHttpClient(() => single({ id: "x" })))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -117,7 +107,7 @@ describe("createAssignment", () => {
       req = r;
       return single(assignmentFixture);
     });
-    const result = await run(createAssignment(testConfig, client, CLS, body));
+    const result = await run(createAssignment({ classId: CLS, body }, makeCtx(client)));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments`);
@@ -127,22 +117,12 @@ describe("createAssignment", () => {
 
   it("returns EdlinkApiError on 400, EdlinkDecodeError on bad schema", async () => {
     const err400 = await runFail(
-      createAssignment(
-        testConfig,
-        makeTestHttpClient(() => fail(400)),
-        CLS,
-        body,
-      ),
+      createAssignment({ classId: CLS, body }, makeCtx(makeTestHttpClient(() => fail(400)))),
     );
     expect(err400).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await runFail(
-      createAssignment(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-        body,
-      ),
+      createAssignment({ classId: CLS, body }, makeCtx(makeTestHttpClient(() => single({ id: "x" })))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -162,7 +142,7 @@ describe("updateAssignment", () => {
       req = r;
       return single(updated);
     });
-    const result = await run(updateAssignment(testConfig, client, CLS, ASGN, patch));
+    const result = await run(updateAssignment({ classId: CLS, assignmentId: ASGN, body: patch }, makeCtx(client)));
 
     expect(req.method).toBe("PATCH");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}`);
@@ -173,13 +153,7 @@ describe("updateAssignment", () => {
 
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
-      updateAssignment(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-        patch,
-      ),
+      updateAssignment({ classId: CLS, assignmentId: ASGN, body: patch }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -196,7 +170,7 @@ describe("deleteAssignment", () => {
       req = r;
       return { status: 200 };
     });
-    const result = await run(deleteAssignment(testConfig, client, CLS, ASGN));
+    const result = await run(deleteAssignment({ classId: CLS, assignmentId: ASGN }, makeCtx(client)));
 
     expect(req.method).toBe("DELETE");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/assignments/${ASGN}`);
@@ -206,12 +180,7 @@ describe("deleteAssignment", () => {
 
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
-      deleteAssignment(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        ASGN,
-      ),
+      deleteAssignment({ classId: CLS, assignmentId: ASGN }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -225,22 +194,15 @@ describe("listAssignments", () => {
   it("streams items across pages; returns empty for no data", async () => {
     // empty
     const empty = await collect(
-      listAssignments(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        CLS,
-        { type: "all" },
-      ),
+      listAssignments({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(() => page([])))),
     );
     expect(empty).toHaveLength(0);
 
     // single page
     const items = await collect(
       listAssignments(
-        testConfig,
-        makeTestHttpClient(() => page([assignmentFixture, assignmentFixture2])),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([assignmentFixture, assignmentFixture2]))),
       ),
     );
     expect(items).toHaveLength(2);
@@ -253,7 +215,9 @@ describe("listAssignments", () => {
       calls++;
       return calls === 1 ? page([assignmentFixture], `${BASE}/next?cursor=p2`) : page([assignmentFixture2]);
     };
-    const multiItems = await collect(listAssignments(testConfig, makeTestHttpClient(multi), CLS, { type: "all" }));
+    const multiItems = await collect(
+      listAssignments({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(multi))),
+    );
     expect(multiItems).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -263,13 +227,13 @@ describe("listAssignments", () => {
     let pc = 0;
     const byPages = await collect(
       listAssignments(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...assignmentFixture, id: `a-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
-        CLS,
-        { type: "pages", maxPages: 2 },
+        { classId: CLS, pagination: { type: "pages", maxPages: 2 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...assignmentFixture, id: `a-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -279,20 +243,20 @@ describe("listAssignments", () => {
     let rc = 0;
     const byRecs = await collect(
       listAssignments(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...assignmentFixture, id: `r-${rc}a` },
-              { ...assignmentFixture2, id: `r-${rc}b` },
-              { ...assignmentFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
-        CLS,
-        { type: "records", maxRecords: 5 },
+        { classId: CLS, pagination: { type: "records", maxRecords: 5 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...assignmentFixture, id: `r-${rc}a` },
+                { ...assignmentFixture2, id: `r-${rc}b` },
+                { ...assignmentFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -301,21 +265,14 @@ describe("listAssignments", () => {
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
     const err500 = await collectFail(
-      listAssignments(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        CLS,
-        { type: "all" },
-      ),
+      listAssignments({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(() => fail(500)))),
     );
     expect(err500).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
       listAssignments(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([{ id: "bad" }]))),
       ),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);

@@ -4,6 +4,22 @@ import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 
 // ---------------------------------------------------------------------------
+// Shared option types
+// ---------------------------------------------------------------------------
+
+/** Bundles the two runtime dependencies that every API call needs. */
+export interface RequestContext {
+  readonly config: EdlinkConfigData;
+  readonly httpClient: HttpClient.HttpClient;
+}
+
+/** Identifies an API endpoint and how to decode its response. */
+export interface EndpointOptions<A, I> {
+  readonly path: string;
+  readonly schema: Schema.Schema<A, I>;
+}
+
+// ---------------------------------------------------------------------------
 // Single-entity response schema
 // ---------------------------------------------------------------------------
 
@@ -17,19 +33,19 @@ const SingleResponseSchema = <A, I>(itemSchema: Schema.Schema<A, I>) =>
 // ---------------------------------------------------------------------------
 
 export const fetchOne = <A, I>(
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  path: string,
-  itemSchema: Schema.Schema<A, I>,
+  endpoint: EndpointOptions<A, I>,
+  ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
-  const responseSchema = SingleResponseSchema(itemSchema);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
+  const responseSchema = SingleResponseSchema(endpoint.schema);
   const decode = Schema.decodeUnknown(responseSchema);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}${path}`;
+    const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
-    const request = HttpClientRequest.get(url).pipe(HttpClientRequest.bearerToken(Secret.value(config.clientSecret)));
+    const request = HttpClientRequest.get(url).pipe(
+      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+    );
 
     const response = yield* client.execute(request).pipe(
       Effect.mapError(
@@ -70,21 +86,19 @@ export const fetchOne = <A, I>(
 // ---------------------------------------------------------------------------
 
 export const createOne = <A, I>(
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  path: string,
-  itemSchema: Schema.Schema<A, I>,
+  endpoint: EndpointOptions<A, I>,
   body: Record<string, unknown>,
+  ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
-  const responseSchema = SingleResponseSchema(itemSchema);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
+  const responseSchema = SingleResponseSchema(endpoint.schema);
   const decode = Schema.decodeUnknown(responseSchema);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}${path}`;
+    const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
     const request = HttpClientRequest.post(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
+      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
       HttpClientRequest.bodyJson(body),
     );
 
@@ -136,21 +150,19 @@ export const createOne = <A, I>(
 // ---------------------------------------------------------------------------
 
 export const updateOne = <A, I>(
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  path: string,
-  itemSchema: Schema.Schema<A, I>,
+  endpoint: EndpointOptions<A, I>,
   body: Record<string, unknown>,
+  ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
-  const responseSchema = SingleResponseSchema(itemSchema);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
+  const responseSchema = SingleResponseSchema(endpoint.schema);
   const decode = Schema.decodeUnknown(responseSchema);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}${path}`;
+    const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
     const request = HttpClientRequest.patch(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
+      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
       HttpClientRequest.bodyJson(body),
     );
 
@@ -200,17 +212,15 @@ export const updateOne = <A, I>(
 // deleteOne — DELETE an entity
 // ---------------------------------------------------------------------------
 
-export const deleteOne = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  path: string,
-): Effect.Effect<void, EdlinkApiError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
+export const deleteOne = (path: string, ctx: RequestContext): Effect.Effect<void, EdlinkApiError> => {
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}${path}`;
+    const url = `${ctx.config.apiBaseUrl}${path}`;
 
-    const request = HttpClientRequest.del(url).pipe(HttpClientRequest.bearerToken(Secret.value(config.clientSecret)));
+    const request = HttpClientRequest.del(url).pipe(
+      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+    );
 
     yield* client.execute(request).pipe(
       Effect.mapError(

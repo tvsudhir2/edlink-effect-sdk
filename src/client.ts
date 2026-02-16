@@ -10,6 +10,7 @@ import * as EnrollmentsApi from "./api/v2/enrollments.js";
 import { createEventsStream } from "./api/v2/events.js";
 import * as LicensesApi from "./api/v2/licenses.js";
 import * as PeopleApi from "./api/v2/people.js";
+import type { RequestContext } from "./api/v2/request.js";
 import * as SchoolsApi from "./api/v2/schools.js";
 import * as SectionsApi from "./api/v2/sections.js";
 import * as SessionsApi from "./api/v2/sessions.js";
@@ -119,11 +120,7 @@ interface AssignmentsService {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Assignment, ApiErrors>;
   readonly fetch: (classId: string, assignmentId: string) => Effect.Effect<Assignment, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Assignment, ApiErrors>;
-  readonly update: (
-    classId: string,
-    assignmentId: string,
-    body: Record<string, unknown>,
-  ) => Effect.Effect<Assignment, ApiErrors>;
+  readonly update: (options: AssignmentsApi.UpdateAssignmentOptions) => Effect.Effect<Assignment, ApiErrors>;
   readonly delete: (classId: string, assignmentId: string) => Effect.Effect<void, EdlinkApiError>;
 }
 
@@ -131,11 +128,7 @@ interface CategoriesService {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Category, ApiErrors>;
   readonly fetch: (classId: string, categoryId: string) => Effect.Effect<Category, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Category, ApiErrors>;
-  readonly update: (
-    classId: string,
-    categoryId: string,
-    body: Record<string, unknown>,
-  ) => Effect.Effect<Category, ApiErrors>;
+  readonly update: (options: CategoriesApi.UpdateCategoryOptions) => Effect.Effect<Category, ApiErrors>;
   readonly delete: (classId: string, categoryId: string) => Effect.Effect<void, EdlinkApiError>;
 }
 
@@ -145,24 +138,11 @@ interface SubmissionsService {
     assignmentId: string,
     config?: PaginationConfig,
   ) => Stream.Stream<Submission, ApiErrors>;
-  readonly fetch: (classId: string, assignmentId: string, submissionId: string) => Effect.Effect<Submission, ApiErrors>;
-  readonly submit: (
-    classId: string,
-    assignmentId: string,
-    body: Record<string, unknown>,
-  ) => Effect.Effect<Submission, ApiErrors>;
+  readonly fetch: (options: SubmissionsApi.FetchSubmissionOptions) => Effect.Effect<Submission, ApiErrors>;
+  readonly submit: (options: SubmissionsApi.SubmitAttemptOptions) => Effect.Effect<Submission, ApiErrors>;
   readonly reclaim: (classId: string, assignmentId: string) => Effect.Effect<Submission, ApiErrors>;
-  readonly return: (
-    classId: string,
-    assignmentId: string,
-    submissionId: string,
-  ) => Effect.Effect<Submission, ApiErrors>;
-  readonly update: (
-    classId: string,
-    assignmentId: string,
-    submissionId: string,
-    body: Record<string, unknown>,
-  ) => Effect.Effect<Submission, ApiErrors>;
+  readonly return: (options: SubmissionsApi.ReturnSubmissionOptions) => Effect.Effect<Submission, ApiErrors>;
+  readonly update: (options: SubmissionsApi.UpdateSubmissionOptions) => Effect.Effect<Submission, ApiErrors>;
 }
 
 // ---------------------------------------------------------------------------
@@ -209,6 +189,8 @@ const makeEdlinkClient = Effect.gen(function* () {
   const edlinkConfig = yield* EdlinkConfig;
   const httpClient = yield* HttpClient.HttpClient;
 
+  const ctx: RequestContext = { config: edlinkConfig, httpClient };
+
   const defaultPagination: PaginationConfig = {
     type: "pages",
     maxPages: edlinkConfig.defaultMaxPages,
@@ -217,144 +199,134 @@ const makeEdlinkClient = Effect.gen(function* () {
   const pg = (p?: PaginationConfig) => p ?? defaultPagination;
 
   return {
-    getEventsStream: (pagination?: PaginationConfig) => createEventsStream(edlinkConfig, httpClient, pg(pagination)),
+    getEventsStream: (pagination?: PaginationConfig) => createEventsStream(pg(pagination), ctx),
 
     districts: {
-      list: (p?: PaginationConfig) => DistrictsApi.listDistricts(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => DistrictsApi.fetchDistrict(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => DistrictsApi.listDistricts(pg(p), ctx),
+      fetch: (id: string) => DistrictsApi.fetchDistrict(id, ctx),
       listAdministrators: (districtId: string, p?: PaginationConfig) =>
-        DistrictsApi.listDistrictAdministrators(edlinkConfig, httpClient, districtId, pg(p)),
+        DistrictsApi.listDistrictAdministrators({ districtId, pagination: pg(p) }, ctx),
     },
 
     schools: {
-      list: (p?: PaginationConfig) => SchoolsApi.listSchools(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => SchoolsApi.fetchSchool(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => SchoolsApi.listSchools(pg(p), ctx),
+      fetch: (id: string) => SchoolsApi.fetchSchool(id, ctx),
       listClasses: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolClasses(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolClasses({ schoolId, pagination: pg(p) }, ctx),
       listCourses: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolCourses(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolCourses({ schoolId, pagination: pg(p) }, ctx),
       listSessions: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolSessions(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolSessions({ schoolId, pagination: pg(p) }, ctx),
       listPeople: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolPeople(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolPeople({ schoolId, pagination: pg(p) }, ctx),
       listAdministrators: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolAdministrators(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolAdministrators({ schoolId, pagination: pg(p) }, ctx),
       listTeachers: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolTeachers(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolTeachers({ schoolId, pagination: pg(p) }, ctx),
       listStudents: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolStudents(edlinkConfig, httpClient, schoolId, pg(p)),
+        SchoolsApi.listSchoolStudents({ schoolId, pagination: pg(p) }, ctx),
     },
 
     courses: {
-      list: (p?: PaginationConfig) => CoursesApi.listCourses(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => CoursesApi.fetchCourse(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => CoursesApi.listCourses(pg(p), ctx),
+      fetch: (id: string) => CoursesApi.fetchCourse(id, ctx),
       listClasses: (courseId: string, p?: PaginationConfig) =>
-        CoursesApi.listCourseClasses(edlinkConfig, httpClient, courseId, pg(p)),
+        CoursesApi.listCourseClasses({ courseId, pagination: pg(p) }, ctx),
     },
 
     sessions: {
-      list: (p?: PaginationConfig) => SessionsApi.listSessions(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => SessionsApi.fetchSession(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => SessionsApi.listSessions(pg(p), ctx),
+      fetch: (id: string) => SessionsApi.fetchSession(id, ctx),
     },
 
     sections: {
-      list: (p?: PaginationConfig) => SectionsApi.listSections(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => SectionsApi.fetchSection(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => SectionsApi.listSections(pg(p), ctx),
+      fetch: (id: string) => SectionsApi.fetchSection(id, ctx),
       listEnrollments: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionEnrollments(edlinkConfig, httpClient, sectionId, pg(p)),
+        SectionsApi.listSectionEnrollments({ sectionId, pagination: pg(p) }, ctx),
       listPeople: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionPeople(edlinkConfig, httpClient, sectionId, pg(p)),
+        SectionsApi.listSectionPeople({ sectionId, pagination: pg(p) }, ctx),
       listTeachers: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionTeachers(edlinkConfig, httpClient, sectionId, pg(p)),
+        SectionsApi.listSectionTeachers({ sectionId, pagination: pg(p) }, ctx),
       listStudents: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionStudents(edlinkConfig, httpClient, sectionId, pg(p)),
+        SectionsApi.listSectionStudents({ sectionId, pagination: pg(p) }, ctx),
     },
 
     classes: {
-      list: (p?: PaginationConfig) => ClassesApi.listClasses(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => ClassesApi.fetchClass(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => ClassesApi.listClasses(pg(p), ctx),
+      fetch: (id: string) => ClassesApi.fetchClass(id, ctx),
       listSections: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassSections(edlinkConfig, httpClient, classId, pg(p)),
+        ClassesApi.listClassSections({ classId, pagination: pg(p) }, ctx),
       listEnrollments: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassEnrollments(edlinkConfig, httpClient, classId, pg(p)),
+        ClassesApi.listClassEnrollments({ classId, pagination: pg(p) }, ctx),
       listPeople: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassPeople(edlinkConfig, httpClient, classId, pg(p)),
+        ClassesApi.listClassPeople({ classId, pagination: pg(p) }, ctx),
       listTeachers: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassTeachers(edlinkConfig, httpClient, classId, pg(p)),
+        ClassesApi.listClassTeachers({ classId, pagination: pg(p) }, ctx),
       listStudents: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassStudents(edlinkConfig, httpClient, classId, pg(p)),
+        ClassesApi.listClassStudents({ classId, pagination: pg(p) }, ctx),
     },
 
     people: {
-      list: (p?: PaginationConfig) => PeopleApi.listPeople(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => PeopleApi.fetchPerson(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => PeopleApi.listPeople(pg(p), ctx),
+      fetch: (id: string) => PeopleApi.fetchPerson(id, ctx),
       listEnrollments: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonEnrollments(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonEnrollments({ personId, pagination: pg(p) }, ctx),
       listDistricts: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonDistricts(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonDistricts({ personId, pagination: pg(p) }, ctx),
       listSchools: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonSchools(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonSchools({ personId, pagination: pg(p) }, ctx),
       listClasses: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonClasses(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonClasses({ personId, pagination: pg(p) }, ctx),
       listSections: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonSections(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonSections({ personId, pagination: pg(p) }, ctx),
       listAgents: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonAgents(edlinkConfig, httpClient, personId, pg(p)),
+        PeopleApi.listPersonAgents({ personId, pagination: pg(p) }, ctx),
     },
 
     enrollments: {
-      list: (p?: PaginationConfig) => EnrollmentsApi.listEnrollments(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => EnrollmentsApi.fetchEnrollment(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => EnrollmentsApi.listEnrollments(pg(p), ctx),
+      fetch: (id: string) => EnrollmentsApi.fetchEnrollment(id, ctx),
     },
 
     agents: {
-      list: (p?: PaginationConfig) => AgentsApi.listAgents(edlinkConfig, httpClient, pg(p)),
-      fetch: (id: string) => AgentsApi.fetchAgent(edlinkConfig, httpClient, id),
+      list: (p?: PaginationConfig) => AgentsApi.listAgents(pg(p), ctx),
+      fetch: (id: string) => AgentsApi.fetchAgent(id, ctx),
     },
 
     licenses: {
-      list: (p?: PaginationConfig) => LicensesApi.listLicenses(edlinkConfig, httpClient, pg(p)),
+      list: (p?: PaginationConfig) => LicensesApi.listLicenses(pg(p), ctx),
     },
 
     assignments: {
       list: (classId: string, p?: PaginationConfig) =>
-        AssignmentsApi.listAssignments(edlinkConfig, httpClient, classId, pg(p)),
-      fetch: (classId: string, assignmentId: string) =>
-        AssignmentsApi.fetchAssignment(edlinkConfig, httpClient, classId, assignmentId),
+        AssignmentsApi.listAssignments({ classId, pagination: pg(p) }, ctx),
+      fetch: (classId: string, assignmentId: string) => AssignmentsApi.fetchAssignment({ classId, assignmentId }, ctx),
       create: (classId: string, body: Record<string, unknown>) =>
-        AssignmentsApi.createAssignment(edlinkConfig, httpClient, classId, body),
-      update: (classId: string, assignmentId: string, body: Record<string, unknown>) =>
-        AssignmentsApi.updateAssignment(edlinkConfig, httpClient, classId, assignmentId, body),
+        AssignmentsApi.createAssignment({ classId, body }, ctx),
+      update: (options: AssignmentsApi.UpdateAssignmentOptions) => AssignmentsApi.updateAssignment(options, ctx),
       delete: (classId: string, assignmentId: string) =>
-        AssignmentsApi.deleteAssignment(edlinkConfig, httpClient, classId, assignmentId),
+        AssignmentsApi.deleteAssignment({ classId, assignmentId }, ctx),
     },
 
     categories: {
       list: (classId: string, p?: PaginationConfig) =>
-        CategoriesApi.listCategories(edlinkConfig, httpClient, classId, pg(p)),
-      fetch: (classId: string, categoryId: string) =>
-        CategoriesApi.fetchCategory(edlinkConfig, httpClient, classId, categoryId),
-      create: (classId: string, body: Record<string, unknown>) =>
-        CategoriesApi.createCategory(edlinkConfig, httpClient, classId, body),
-      update: (classId: string, categoryId: string, body: Record<string, unknown>) =>
-        CategoriesApi.updateCategory(edlinkConfig, httpClient, classId, categoryId, body),
-      delete: (classId: string, categoryId: string) =>
-        CategoriesApi.deleteCategory(edlinkConfig, httpClient, classId, categoryId),
+        CategoriesApi.listCategories({ classId, pagination: pg(p) }, ctx),
+      fetch: (classId: string, categoryId: string) => CategoriesApi.fetchCategory({ classId, categoryId }, ctx),
+      create: (classId: string, body: Record<string, unknown>) => CategoriesApi.createCategory({ classId, body }, ctx),
+      update: (options: CategoriesApi.UpdateCategoryOptions) => CategoriesApi.updateCategory(options, ctx),
+      delete: (classId: string, categoryId: string) => CategoriesApi.deleteCategory({ classId, categoryId }, ctx),
     },
 
     submissions: {
       list: (classId: string, assignmentId: string, p?: PaginationConfig) =>
-        SubmissionsApi.listSubmissions(edlinkConfig, httpClient, classId, assignmentId, pg(p)),
-      fetch: (classId: string, assignmentId: string, submissionId: string) =>
-        SubmissionsApi.fetchSubmission(edlinkConfig, httpClient, classId, assignmentId, submissionId),
-      submit: (classId: string, assignmentId: string, body: Record<string, unknown>) =>
-        SubmissionsApi.submitAttempt(edlinkConfig, httpClient, classId, assignmentId, body),
+        SubmissionsApi.listSubmissions({ classId, assignmentId, pagination: pg(p) }, ctx),
+      fetch: (options: SubmissionsApi.FetchSubmissionOptions) => SubmissionsApi.fetchSubmission(options, ctx),
+      submit: (options: SubmissionsApi.SubmitAttemptOptions) => SubmissionsApi.submitAttempt(options, ctx),
       reclaim: (classId: string, assignmentId: string) =>
-        SubmissionsApi.reclaimSubmission(edlinkConfig, httpClient, classId, assignmentId),
-      return: (classId: string, assignmentId: string, submissionId: string) =>
-        SubmissionsApi.returnSubmission(edlinkConfig, httpClient, classId, assignmentId, submissionId),
-      update: (classId: string, assignmentId: string, submissionId: string, body: Record<string, unknown>) =>
-        SubmissionsApi.updateSubmission(edlinkConfig, httpClient, classId, assignmentId, submissionId, body),
+        SubmissionsApi.reclaimSubmission({ classId, assignmentId }, ctx),
+      return: (options: SubmissionsApi.ReturnSubmissionOptions) => SubmissionsApi.returnSubmission(options, ctx),
+      update: (options: SubmissionsApi.UpdateSubmissionOptions) => SubmissionsApi.updateSubmission(options, ctx),
     },
   };
 });

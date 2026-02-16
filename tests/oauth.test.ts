@@ -35,7 +35,7 @@ const fail = (status: number) => ({ status, body: { error: "err" } });
 
 describe("buildAuthorizationUrl", () => {
   it("builds a URL with client_id, redirect_uri, and response_type", () => {
-    const url = buildAuthorizationUrl(userConfig);
+    const url = buildAuthorizationUrl({}, userConfig);
     const parsed = new URL(url);
 
     expect(parsed.origin + parsed.pathname).toBe(`${BASE}/authentication/authorize`);
@@ -47,19 +47,19 @@ describe("buildAuthorizationUrl", () => {
   });
 
   it("includes scope when scopes are provided", () => {
-    const url = buildAuthorizationUrl(userConfig, ["openid", "profile"]);
+    const url = buildAuthorizationUrl({ scopes: ["openid", "profile"] }, userConfig);
     const parsed = new URL(url);
     expect(parsed.searchParams.get("scope")).toBe("openid profile");
   });
 
   it("includes state when state is provided", () => {
-    const url = buildAuthorizationUrl(userConfig, [], "csrf-token-123");
+    const url = buildAuthorizationUrl({ state: "csrf-token-123" }, userConfig);
     const parsed = new URL(url);
     expect(parsed.searchParams.get("state")).toBe("csrf-token-123");
   });
 
   it("includes both scope and state", () => {
-    const url = buildAuthorizationUrl(userConfig, ["openid"], "my-state");
+    const url = buildAuthorizationUrl({ scopes: ["openid"], state: "my-state" }, userConfig);
     const parsed = new URL(url);
     expect(parsed.searchParams.get("scope")).toBe("openid");
     expect(parsed.searchParams.get("state")).toBe("my-state");
@@ -77,7 +77,7 @@ describe("exchangeCode", () => {
       req = r;
       return ok({ $data: tokenResponseFixture });
     });
-    const result = await run(exchangeCode(userConfig, client, "auth-code-xyz"));
+    const result = await run(exchangeCode("auth-code-xyz", { config: userConfig, httpClient: client }));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/authentication/token`);
@@ -88,22 +88,20 @@ describe("exchangeCode", () => {
 
   it("returns EdlinkApiError on 400", async () => {
     const err = await runFail(
-      exchangeCode(
-        userConfig,
-        makeTestHttpClient(() => fail(400)),
-        "bad-code",
-      ),
+      exchangeCode("bad-code", {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => fail(400)),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      exchangeCode(
-        userConfig,
-        makeTestHttpClient(() => ok({ $data: { bad: true } })),
-        "code",
-      ),
+      exchangeCode("code", {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => ok({ $data: { bad: true } })),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -120,7 +118,7 @@ describe("refreshToken", () => {
       req = r;
       return ok({ $data: tokenResponseFixture });
     });
-    const result = await run(refreshToken(userConfig, client, "refresh-xyz-789"));
+    const result = await run(refreshToken("refresh-xyz-789", { config: userConfig, httpClient: client }));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/authentication/token`);
@@ -130,22 +128,20 @@ describe("refreshToken", () => {
 
   it("returns EdlinkApiError on 401", async () => {
     const err = await runFail(
-      refreshToken(
-        userConfig,
-        makeTestHttpClient(() => fail(401)),
-        "bad-token",
-      ),
+      refreshToken("bad-token", {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => fail(401)),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      refreshToken(
-        userConfig,
-        makeTestHttpClient(() => ok({ $data: {} })),
-        "tok",
-      ),
+      refreshToken("tok", {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => ok({ $data: {} })),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });

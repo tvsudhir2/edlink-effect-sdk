@@ -22,7 +22,7 @@ import {
   sectionFixture2,
 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -52,7 +52,7 @@ describe("fetchClass", () => {
       req = r;
       return single(classFixture);
     });
-    const result = await run(fetchClass(testConfig, client, CLS));
+    const result = await run(fetchClass(CLS, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}`);
@@ -62,22 +62,10 @@ describe("fetchClass", () => {
   });
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
-    const err404 = await runFail(
-      fetchClass(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-      ),
-    );
+    const err404 = await runFail(fetchClass(CLS, makeCtx(makeTestHttpClient(() => fail(404)))));
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
-    const errDecode = await runFail(
-      fetchClass(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-      ),
-    );
+    const errDecode = await runFail(fetchClass(CLS, makeCtx(makeTestHttpClient(() => single({ id: "x" })))));
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
 });
@@ -88,13 +76,7 @@ describe("fetchClass", () => {
 
 describe("listClasses", () => {
   it("streams items across pages", async () => {
-    const empty = await collect(
-      listClasses(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        { type: "all" },
-      ),
-    );
+    const empty = await collect(listClasses({ type: "all" }, makeCtx(makeTestHttpClient(() => page([])))));
     expect(empty).toHaveLength(0);
 
     let calls = 0;
@@ -102,7 +84,7 @@ describe("listClasses", () => {
       calls++;
       return calls === 1 ? page([classFixture], `${BASE}/next?cursor=p2`) : page([classFixture2]);
     };
-    const items = await collect(listClasses(testConfig, makeTestHttpClient(multi), { type: "all" }));
+    const items = await collect(listClasses({ type: "all" }, makeCtx(makeTestHttpClient(multi))));
     expect(items).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -111,12 +93,13 @@ describe("listClasses", () => {
     let pc = 0;
     const byPages = await collect(
       listClasses(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...classFixture, id: `c-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
         { type: "pages", maxPages: 2 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...classFixture, id: `c-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -125,19 +108,20 @@ describe("listClasses", () => {
     let rc = 0;
     const byRecs = await collect(
       listClasses(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...classFixture, id: `r-${rc}a` },
-              { ...classFixture2, id: `r-${rc}b` },
-              { ...classFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
         { type: "records", maxRecords: 5 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...classFixture, id: `r-${rc}a` },
+                { ...classFixture2, id: `r-${rc}b` },
+                { ...classFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -145,21 +129,11 @@ describe("listClasses", () => {
   });
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
-    const err = await collectFail(
-      listClasses(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        { type: "all" },
-      ),
-    );
+    const err = await collectFail(listClasses({ type: "all" }, makeCtx(makeTestHttpClient(() => fail(500)))));
     expect(err).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
-      listClasses(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        { type: "all" },
-      ),
+      listClasses({ type: "all" }, makeCtx(makeTestHttpClient(() => page([{ id: "bad" }])))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -174,13 +148,13 @@ describe("listClassSections", () => {
     let req: any;
     const items = await collect(
       listClassSections(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([sectionFixture, sectionFixture2]);
-        }),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([sectionFixture, sectionFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/classes/${CLS}/sections`);
@@ -194,13 +168,13 @@ describe("listClassEnrollments", () => {
     let req: any;
     const items = await collect(
       listClassEnrollments(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([enrollmentFixture, enrollmentFixture2]);
-        }),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([enrollmentFixture, enrollmentFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/classes/${CLS}/enrollments`);
@@ -214,13 +188,13 @@ describe("listClassPeople", () => {
     let req: any;
     const items = await collect(
       listClassPeople(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([personFixture, personFixture2]);
-        }),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([personFixture, personFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/classes/${CLS}/people`);
@@ -233,13 +207,13 @@ describe("listClassTeachers", () => {
     let req: any;
     const items = await collect(
       listClassTeachers(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([personFixture]);
-        }),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([personFixture]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/classes/${CLS}/teachers`);
@@ -252,13 +226,13 @@ describe("listClassStudents", () => {
     let req: any;
     const items = await collect(
       listClassStudents(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([personFixture]);
-        }),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([personFixture]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/classes/${CLS}/students`);

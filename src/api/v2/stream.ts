@@ -1,6 +1,5 @@
 import { HttpClient, HttpClientRequest } from "@effect/platform";
 import { Effect, Option, Schema, Secret, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import {
   deriveNextUrl,
@@ -10,6 +9,7 @@ import {
   trimItems,
 } from "../../pagination.js";
 import { PaginatedResponseSchema } from "../../schemas/paginated.js";
+import type { EndpointOptions, RequestContext } from "./request.js";
 
 // ---------------------------------------------------------------------------
 // Generic paginated stream builder
@@ -29,18 +29,16 @@ import { PaginatedResponseSchema } from "../../schemas/paginated.js";
  * class name on hover rather than expanding the full structural type.
  */
 export const createPaginatedStream = <A, I>(
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  path: string,
-  itemSchema: Schema.Schema<A, I>,
+  endpoint: EndpointOptions<A, I>,
   paginationConfig: PaginationConfig,
+  ctx: RequestContext,
 ): Stream.Stream<A, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
-  const paginatedSchema = PaginatedResponseSchema(itemSchema);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
+  const paginatedSchema = PaginatedResponseSchema(endpoint.schema);
   const decode = Schema.decodeUnknown(paginatedSchema);
 
   const initialState: PaginationState = {
-    nextUrl: `${config.apiBaseUrl}${path}`,
+    nextUrl: `${ctx.config.apiBaseUrl}${endpoint.path}`,
     pageCount: 0,
     recordCount: 0,
   };
@@ -52,7 +50,7 @@ export const createPaginatedStream = <A, I>(
       }
 
       const request = HttpClientRequest.get(state.nextUrl).pipe(
-        HttpClientRequest.bearerToken(Secret.value(config.clientSecret)),
+        HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
       );
 
       const response = yield* client.execute(request).pipe(
@@ -90,11 +88,11 @@ export const createPaginatedStream = <A, I>(
         return Option.none<readonly [readonly A[], PaginationState]>();
       }
 
-      const emitted = trimItems(items, state, paginationConfig);
+      const emitted = trimItems(state, paginationConfig, items);
       const newRecordCount = state.recordCount + emitted.length;
 
       const next: PaginationState = {
-        nextUrl: deriveNextUrl(page.$next ?? null, newRecordCount, paginationConfig),
+        nextUrl: deriveNextUrl({ cursor: page.$next ?? null, newRecordCount }, paginationConfig),
         pageCount: state.pageCount + 1,
         recordCount: newRecordCount,
       };

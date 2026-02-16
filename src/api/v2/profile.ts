@@ -2,6 +2,7 @@ import { HttpClient, HttpClientRequest } from "@effect/platform";
 import { Effect, Schema } from "effect";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { UserProfile } from "../../schemas/token.js";
+import type { UserRequestContext } from "./oauth.js";
 
 // ---------------------------------------------------------------------------
 // User profile response schema
@@ -21,15 +22,14 @@ const ProfileResponseSchema = Schema.Struct({
  * GET `/v2/my/profile` with the user's access token as bearer.
  */
 export const fetchMyProfile = (
-  apiBaseUrl: string,
-  httpClient: HttpClient.HttpClient,
   accessToken: string,
+  ctx: UserRequestContext,
 ): Effect.Effect<UserProfile, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const decode = Schema.decodeUnknown(ProfileResponseSchema);
 
   return Effect.gen(function* () {
-    const url = `${apiBaseUrl}/v2/my/profile`;
+    const url = `${ctx.config.apiBaseUrl}/v2/my/profile`;
 
     const request = HttpClientRequest.get(url).pipe(HttpClientRequest.bearerToken(accessToken));
 

@@ -4,7 +4,7 @@ import { fetchEnrollment, listEnrollments } from "../src/api/v2/enrollments.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { enrollmentFixture, enrollmentFixture2, enrollmentFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -34,7 +34,7 @@ describe("fetchEnrollment", () => {
       req = r;
       return single(enrollmentFixture);
     });
-    const result = await run(fetchEnrollment(testConfig, client, ENR));
+    const result = await run(fetchEnrollment(ENR, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/enrollments/${ENR}`);
@@ -45,22 +45,10 @@ describe("fetchEnrollment", () => {
   });
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
-    const err404 = await runFail(
-      fetchEnrollment(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        ENR,
-      ),
-    );
+    const err404 = await runFail(fetchEnrollment(ENR, makeCtx(makeTestHttpClient(() => fail(404)))));
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
-    const errDecode = await runFail(
-      fetchEnrollment(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        ENR,
-      ),
-    );
+    const errDecode = await runFail(fetchEnrollment(ENR, makeCtx(makeTestHttpClient(() => single({ id: "x" })))));
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
 });
@@ -71,13 +59,7 @@ describe("fetchEnrollment", () => {
 
 describe("listEnrollments", () => {
   it("streams items across pages", async () => {
-    const empty = await collect(
-      listEnrollments(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        { type: "all" },
-      ),
-    );
+    const empty = await collect(listEnrollments({ type: "all" }, makeCtx(makeTestHttpClient(() => page([])))));
     expect(empty).toHaveLength(0);
 
     let calls = 0;
@@ -85,7 +67,7 @@ describe("listEnrollments", () => {
       calls++;
       return calls === 1 ? page([enrollmentFixture], `${BASE}/next?cursor=p2`) : page([enrollmentFixture2]);
     };
-    const items = await collect(listEnrollments(testConfig, makeTestHttpClient(multi), { type: "all" }));
+    const items = await collect(listEnrollments({ type: "all" }, makeCtx(makeTestHttpClient(multi))));
     expect(items).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -94,12 +76,13 @@ describe("listEnrollments", () => {
     let pc = 0;
     const byPages = await collect(
       listEnrollments(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...enrollmentFixture, id: `e-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
         { type: "pages", maxPages: 2 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...enrollmentFixture, id: `e-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -108,19 +91,20 @@ describe("listEnrollments", () => {
     let rc = 0;
     const byRecs = await collect(
       listEnrollments(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...enrollmentFixture, id: `r-${rc}a` },
-              { ...enrollmentFixture2, id: `r-${rc}b` },
-              { ...enrollmentFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
         { type: "records", maxRecords: 5 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...enrollmentFixture, id: `r-${rc}a` },
+                { ...enrollmentFixture2, id: `r-${rc}b` },
+                { ...enrollmentFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -128,21 +112,11 @@ describe("listEnrollments", () => {
   });
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
-    const err = await collectFail(
-      listEnrollments(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        { type: "all" },
-      ),
-    );
+    const err = await collectFail(listEnrollments({ type: "all" }, makeCtx(makeTestHttpClient(() => fail(500)))));
     expect(err).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
-      listEnrollments(
-        testConfig,
-        makeTestHttpClient(() => page([{ bad: true }])),
-        { type: "all" },
-      ),
+      listEnrollments({ type: "all" }, makeCtx(makeTestHttpClient(() => page([{ bad: true }])))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });

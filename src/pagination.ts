@@ -52,15 +52,21 @@ export const shouldContinue = (state: PaginationState, config: PaginationConfig)
 };
 
 /** Trim items if emitting them would exceed the record cap; identity otherwise */
-export const trimItems = <T>(items: readonly T[], state: PaginationState, config: PaginationConfig): readonly T[] => {
+export const trimItems = <T>(state: PaginationState, config: PaginationConfig, items: readonly T[]): readonly T[] => {
   if (config.type !== "records") return items;
   const remaining = config.maxRecords - state.recordCount;
   return items.length <= remaining ? items : items.slice(0, remaining);
 };
 
+/** Options for deriving the next cursor URL. */
+export interface PageResultOptions {
+  readonly cursor: string | null;
+  readonly newRecordCount: number;
+}
+
 /** Derive the next cursor URL — empty string signals "stop" */
-export const deriveNextUrl = (cursor: string | null, newRecordCount: number, config: PaginationConfig): string => {
-  if (!cursor) return "";
-  if (config.type === "records" && newRecordCount >= config.maxRecords) return "";
-  return cursor;
+export const deriveNextUrl = (result: PageResultOptions, config: PaginationConfig): string => {
+  if (!result.cursor) return "";
+  if (config.type === "records" && result.newRecordCount >= config.maxRecords) return "";
+  return result.cursor;
 };

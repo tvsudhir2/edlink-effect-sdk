@@ -4,7 +4,7 @@ import { fetchAgent, listAgents } from "../src/api/v2/agents.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { agentFixture, agentFixture2, agentFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -33,7 +33,7 @@ describe("fetchAgent", () => {
       req = r;
       return single(agentFixture);
     });
-    const result = await run(fetchAgent(testConfig, client, "agent-001"));
+    const result = await run(fetchAgent("agent-001", makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/agents/agent-001`);
@@ -43,22 +43,10 @@ describe("fetchAgent", () => {
   });
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
-    const err404 = await runFail(
-      fetchAgent(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        "x",
-      ),
-    );
+    const err404 = await runFail(fetchAgent("x", makeCtx(makeTestHttpClient(() => fail(404)))));
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
-    const errDecode = await runFail(
-      fetchAgent(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        "x",
-      ),
-    );
+    const errDecode = await runFail(fetchAgent("x", makeCtx(makeTestHttpClient(() => single({ id: "x" })))));
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
 });
@@ -69,21 +57,11 @@ describe("fetchAgent", () => {
 
 describe("listAgents", () => {
   it("streams items across pages; returns empty for no data", async () => {
-    const empty = await collect(
-      listAgents(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        { type: "all" },
-      ),
-    );
+    const empty = await collect(listAgents({ type: "all" }, makeCtx(makeTestHttpClient(() => page([])))));
     expect(empty).toHaveLength(0);
 
     const items = await collect(
-      listAgents(
-        testConfig,
-        makeTestHttpClient(() => page([agentFixture, agentFixture2])),
-        { type: "all" },
-      ),
+      listAgents({ type: "all" }, makeCtx(makeTestHttpClient(() => page([agentFixture, agentFixture2])))),
     );
     expect(items).toHaveLength(2);
     expect(items[0]!.id).toBe("agent-001");
@@ -93,7 +71,7 @@ describe("listAgents", () => {
       calls++;
       return calls === 1 ? page([agentFixture], `${BASE}/next?cursor=p2`) : page([agentFixture2]);
     };
-    const multiItems = await collect(listAgents(testConfig, makeTestHttpClient(multi), { type: "all" }));
+    const multiItems = await collect(listAgents({ type: "all" }, makeCtx(makeTestHttpClient(multi))));
     expect(multiItems).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -102,12 +80,13 @@ describe("listAgents", () => {
     let pc = 0;
     const byPages = await collect(
       listAgents(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...agentFixture, id: `a-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
         { type: "pages", maxPages: 2 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...agentFixture, id: `a-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -116,19 +95,20 @@ describe("listAgents", () => {
     let rc = 0;
     const byRecs = await collect(
       listAgents(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...agentFixture, id: `r-${rc}a` },
-              { ...agentFixture2, id: `r-${rc}b` },
-              { ...agentFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
         { type: "records", maxRecords: 5 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...agentFixture, id: `r-${rc}a` },
+                { ...agentFixture2, id: `r-${rc}b` },
+                { ...agentFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -136,21 +116,11 @@ describe("listAgents", () => {
   });
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
-    const err500 = await collectFail(
-      listAgents(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        { type: "all" },
-      ),
-    );
+    const err500 = await collectFail(listAgents({ type: "all" }, makeCtx(makeTestHttpClient(() => fail(500)))));
     expect(err500).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
-      listAgents(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        { type: "all" },
-      ),
+      listAgents({ type: "all" }, makeCtx(makeTestHttpClient(() => page([{ id: "bad" }])))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });

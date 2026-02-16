@@ -1,5 +1,6 @@
 import { HttpClient } from "@effect/platform";
 import { Context, Effect, Layer, Option } from "effect";
+import type { UserRequestContext } from "./api/v2/oauth.js";
 import * as OAuth from "./api/v2/oauth.js";
 import * as ProfileApi from "./api/v2/profile.js";
 import { EdlinkUserConfig } from "./config.js";
@@ -86,6 +87,8 @@ const makeEdlinkUserClient = Effect.gen(function* () {
   const httpClient = yield* HttpClient.HttpClient;
   const tokenStore = yield* TokenStore;
 
+  const userCtx: UserRequestContext = { config: userConfig, httpClient };
+
   /**
    * Get a valid access token for a user, refreshing if needed.
    * Returns None if no tokens stored.
@@ -106,7 +109,7 @@ const makeEdlinkUserClient = Effect.gen(function* () {
       }
 
       // Token expired or about to expire — refresh
-      const refreshed = yield* OAuth.refreshToken(userConfig, httpClient, stored.refreshToken);
+      const refreshed = yield* OAuth.refreshToken(stored.refreshToken, userCtx);
       const newTokenData = tokenDataFromResponse(refreshed);
       yield* tokenStore.set(userId, newTokenData);
 
@@ -115,14 +118,14 @@ const makeEdlinkUserClient = Effect.gen(function* () {
 
   return {
     authorize: (scopes?: readonly string[], state?: string) =>
-      OAuth.buildAuthorizationUrl(userConfig, scopes ?? [], state),
+      OAuth.buildAuthorizationUrl({ scopes: scopes ?? [], state }, userConfig),
 
     handleCallback: (code: string) =>
       Effect.gen(function* () {
-        const tokenResponse = yield* OAuth.exchangeCode(userConfig, httpClient, code);
+        const tokenResponse = yield* OAuth.exchangeCode(code, userCtx);
 
         // Extract user ID from profile to key the token store
-        const profile = yield* ProfileApi.fetchMyProfile(userConfig.apiBaseUrl, httpClient, tokenResponse.access_token);
+        const profile = yield* ProfileApi.fetchMyProfile(tokenResponse.access_token, userCtx);
 
         const tokenData = tokenDataFromResponse(tokenResponse);
         yield* tokenStore.set(profile.id, tokenData);
@@ -142,7 +145,7 @@ const makeEdlinkUserClient = Effect.gen(function* () {
           });
         }
 
-        return yield* ProfileApi.fetchMyProfile(userConfig.apiBaseUrl, httpClient, maybeToken.value);
+        return yield* ProfileApi.fetchMyProfile(maybeToken.value, userCtx);
       }),
 
     storeTokens: (userId: string, tokenData: TokenData) => tokenStore.set(userId, tokenData),

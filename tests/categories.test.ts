@@ -10,7 +10,7 @@ import {
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { categoryFixture, categoryFixture2, categoryFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -41,7 +41,7 @@ describe("fetchCategory", () => {
       req = r;
       return single(categoryFixture);
     });
-    const result = await run(fetchCategory(testConfig, client, CLS, CAT));
+    const result = await run(fetchCategory({ classId: CLS, categoryId: CAT }, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/categories/${CAT}`);
@@ -53,22 +53,12 @@ describe("fetchCategory", () => {
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
     const err404 = await runFail(
-      fetchCategory(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        CAT,
-      ),
+      fetchCategory({ classId: CLS, categoryId: CAT }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await runFail(
-      fetchCategory(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-        CAT,
-      ),
+      fetchCategory({ classId: CLS, categoryId: CAT }, makeCtx(makeTestHttpClient(() => single({ id: "x" })))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -87,7 +77,7 @@ describe("createCategory", () => {
       req = r;
       return single(categoryFixture);
     });
-    const result = await run(createCategory(testConfig, client, CLS, body));
+    const result = await run(createCategory({ classId: CLS, body }, makeCtx(client)));
 
     expect(req.method).toBe("POST");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/categories`);
@@ -96,23 +86,11 @@ describe("createCategory", () => {
   });
 
   it("returns EdlinkApiError on 400, EdlinkDecodeError on bad schema", async () => {
-    const err400 = await runFail(
-      createCategory(
-        testConfig,
-        makeTestHttpClient(() => fail(400)),
-        CLS,
-        body,
-      ),
-    );
+    const err400 = await runFail(createCategory({ classId: CLS, body }, makeCtx(makeTestHttpClient(() => fail(400)))));
     expect(err400).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await runFail(
-      createCategory(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        CLS,
-        body,
-      ),
+      createCategory({ classId: CLS, body }, makeCtx(makeTestHttpClient(() => single({ id: "x" })))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -132,7 +110,7 @@ describe("updateCategory", () => {
       req = r;
       return single(updated);
     });
-    const result = await run(updateCategory(testConfig, client, CLS, CAT, patch));
+    const result = await run(updateCategory({ classId: CLS, categoryId: CAT, body: patch }, makeCtx(client)));
 
     expect(req.method).toBe("PATCH");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/categories/${CAT}`);
@@ -143,13 +121,7 @@ describe("updateCategory", () => {
 
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
-      updateCategory(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        CAT,
-        patch,
-      ),
+      updateCategory({ classId: CLS, categoryId: CAT, body: patch }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -166,7 +138,7 @@ describe("deleteCategory", () => {
       req = r;
       return { status: 200 };
     });
-    const result = await run(deleteCategory(testConfig, client, CLS, CAT));
+    const result = await run(deleteCategory({ classId: CLS, categoryId: CAT }, makeCtx(client)));
 
     expect(req.method).toBe("DELETE");
     expect(req.url).toBe(`${BASE}/v2/graph/classes/${CLS}/categories/${CAT}`);
@@ -176,12 +148,7 @@ describe("deleteCategory", () => {
 
   it("returns EdlinkApiError on 404", async () => {
     const err = await runFail(
-      deleteCategory(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        CLS,
-        CAT,
-      ),
+      deleteCategory({ classId: CLS, categoryId: CAT }, makeCtx(makeTestHttpClient(() => fail(404)))),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
@@ -194,21 +161,14 @@ describe("deleteCategory", () => {
 describe("listCategories", () => {
   it("streams items across pages; returns empty for no data", async () => {
     const empty = await collect(
-      listCategories(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        CLS,
-        { type: "all" },
-      ),
+      listCategories({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(() => page([])))),
     );
     expect(empty).toHaveLength(0);
 
     const items = await collect(
       listCategories(
-        testConfig,
-        makeTestHttpClient(() => page([categoryFixture, categoryFixture2])),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([categoryFixture, categoryFixture2]))),
       ),
     );
     expect(items).toHaveLength(2);
@@ -220,7 +180,9 @@ describe("listCategories", () => {
       calls++;
       return calls === 1 ? page([categoryFixture], `${BASE}/next?cursor=p2`) : page([categoryFixture2]);
     };
-    const multiItems = await collect(listCategories(testConfig, makeTestHttpClient(multi), CLS, { type: "all" }));
+    const multiItems = await collect(
+      listCategories({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(multi))),
+    );
     expect(multiItems).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -229,13 +191,13 @@ describe("listCategories", () => {
     let pc = 0;
     const byPages = await collect(
       listCategories(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...categoryFixture, id: `c-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
-        CLS,
-        { type: "pages", maxPages: 2 },
+        { classId: CLS, pagination: { type: "pages", maxPages: 2 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...categoryFixture, id: `c-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -244,20 +206,20 @@ describe("listCategories", () => {
     let rc = 0;
     const byRecs = await collect(
       listCategories(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...categoryFixture, id: `r-${rc}a` },
-              { ...categoryFixture2, id: `r-${rc}b` },
-              { ...categoryFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
-        CLS,
-        { type: "records", maxRecords: 5 },
+        { classId: CLS, pagination: { type: "records", maxRecords: 5 } },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...categoryFixture, id: `r-${rc}a` },
+                { ...categoryFixture2, id: `r-${rc}b` },
+                { ...categoryFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -266,21 +228,14 @@ describe("listCategories", () => {
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
     const err500 = await collectFail(
-      listCategories(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        CLS,
-        { type: "all" },
-      ),
+      listCategories({ classId: CLS, pagination: { type: "all" } }, makeCtx(makeTestHttpClient(() => fail(500)))),
     );
     expect(err500).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
       listCategories(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        CLS,
-        { type: "all" },
+        { classId: CLS, pagination: { type: "all" } },
+        makeCtx(makeTestHttpClient(() => page([{ id: "bad" }]))),
       ),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);

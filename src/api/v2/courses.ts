@@ -1,35 +1,34 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { EdlinkClass } from "../../schemas/class.js";
 import { EdlinkClass as ClassSchema } from "../../schemas/class.js";
 import type { Course } from "../../schemas/course.js";
 import { Course as CourseSchema } from "../../schemas/course.js";
-import { fetchOne } from "./request.js";
+import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const BASE = "/v2/graph/courses";
 
+export interface ListCourseSubResourceOptions {
+  readonly courseId: string;
+  readonly pagination: PaginationConfig;
+}
+
 export const listCourses = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   pagination: PaginationConfig,
+  ctx: RequestContext,
 ): Stream.Stream<Course, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, BASE, CourseSchema, pagination);
+  createPaginatedStream({ path: BASE, schema: CourseSchema }, pagination, ctx);
 
 export const fetchCourse = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
   courseId: string,
+  ctx: RequestContext,
 ): Effect.Effect<Course, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, `${BASE}/${courseId}`, CourseSchema);
+  fetchOne({ path: `${BASE}/${courseId}`, schema: CourseSchema }, ctx);
 
 export const listCourseClasses = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  courseId: string,
-  pagination: PaginationConfig,
+  options: ListCourseSubResourceOptions,
+  ctx: RequestContext,
 ): Stream.Stream<EdlinkClass, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, `${BASE}/${courseId}/classes`, ClassSchema, pagination);
+  createPaginatedStream({ path: `${BASE}/${options.courseId}/classes`, schema: ClassSchema }, options.pagination, ctx);

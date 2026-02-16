@@ -1,11 +1,9 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Submission } from "../../schemas/submission.js";
 import { Submission as SubmissionSchema } from "../../schemas/submission.js";
-import { createOne, fetchOne, updateOne } from "./request.js";
+import { createOne, fetchOne, type RequestContext, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const submissionsPath = (classId: string, assignmentId: string) =>
@@ -14,68 +12,117 @@ const submissionsPath = (classId: string, assignmentId: string) =>
 const submissionPath = (classId: string, assignmentId: string, submissionId: string) =>
   `/v2/graph/classes/${classId}/assignments/${assignmentId}/submissions/${submissionId}`;
 
+// ---------------------------------------------------------------------------
+// Options types
+// ---------------------------------------------------------------------------
+
+export interface ListSubmissionsOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly pagination: PaginationConfig;
+}
+
+export interface FetchSubmissionOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly submissionId: string;
+}
+
+export interface SubmitAttemptOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly body: Record<string, unknown>;
+}
+
+export interface ReclaimSubmissionOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+}
+
+export interface ReturnSubmissionOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly submissionId: string;
+}
+
+export interface UpdateSubmissionOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly submissionId: string;
+  readonly body: Record<string, unknown>;
+}
+
+// ---------------------------------------------------------------------------
+// API functions
+// ---------------------------------------------------------------------------
+
 export const listSubmissions = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  pagination: PaginationConfig,
+  options: ListSubmissionsOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Submission, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, submissionsPath(classId, assignmentId), SubmissionSchema, pagination);
+  createPaginatedStream(
+    { path: submissionsPath(options.classId, options.assignmentId), schema: SubmissionSchema },
+    options.pagination,
+    ctx,
+  );
 
 export const fetchSubmission = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  submissionId: string,
+  options: FetchSubmissionOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, submissionPath(classId, assignmentId, submissionId), SubmissionSchema);
+  fetchOne(
+    { path: submissionPath(options.classId, options.assignmentId, options.submissionId), schema: SubmissionSchema },
+    ctx,
+  );
 
 export const submitAttempt = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  body: Record<string, unknown>,
+  options: SubmitAttemptOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
   createOne(
-    config,
-    httpClient,
-    `/v2/graph/classes/${classId}/assignments/${assignmentId}/submit`,
-    SubmissionSchema,
-    body,
+    {
+      path: `/v2/graph/classes/${options.classId}/assignments/${options.assignmentId}/submit`,
+      schema: SubmissionSchema,
+    },
+    options.body,
+    ctx,
   );
 
 export const reclaimSubmission = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
+  options: ReclaimSubmissionOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
   createOne(
-    config,
-    httpClient,
-    `/v2/graph/classes/${classId}/assignments/${assignmentId}/reclaim`,
-    SubmissionSchema,
+    {
+      path: `/v2/graph/classes/${options.classId}/assignments/${options.assignmentId}/reclaim`,
+      schema: SubmissionSchema,
+    },
     {},
+    ctx,
   );
 
 export const returnSubmission = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  submissionId: string,
+  options: ReturnSubmissionOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
-  createOne(config, httpClient, `${submissionPath(classId, assignmentId, submissionId)}/return`, SubmissionSchema, {});
+  createOne(
+    {
+      path: `${submissionPath(options.classId, options.assignmentId, options.submissionId)}/return`,
+      schema: SubmissionSchema,
+    },
+    {},
+    ctx,
+  );
 
 export const updateSubmission = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  submissionId: string,
-  body: Record<string, unknown>,
+  options: UpdateSubmissionOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Submission, EdlinkApiError | EdlinkDecodeError> =>
-  updateOne(config, httpClient, submissionPath(classId, assignmentId, submissionId), SubmissionSchema, body);
+  updateOne(
+    {
+      path: submissionPath(options.classId, options.assignmentId, options.submissionId),
+      schema: SubmissionSchema,
+    },
+    options.body,
+    ctx,
+  );

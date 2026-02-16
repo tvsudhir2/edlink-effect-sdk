@@ -1,11 +1,9 @@
-import type { HttpClient } from "@effect/platform";
 import type { Effect, Stream } from "effect";
-import type { EdlinkConfigData } from "../../config.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import type { PaginationConfig } from "../../pagination.js";
 import type { Assignment } from "../../schemas/assignment.js";
 import { Assignment as AssignmentSchema } from "../../schemas/assignment.js";
-import { createOne, deleteOne, fetchOne, updateOne } from "./request.js";
+import { createOne, deleteOne, fetchOne, type RequestContext, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 
 const classAssignmentsPath = (classId: string) => `/v2/graph/classes/${classId}/assignments`;
@@ -13,42 +11,73 @@ const classAssignmentsPath = (classId: string) => `/v2/graph/classes/${classId}/
 const classAssignmentPath = (classId: string, assignmentId: string) =>
   `/v2/graph/classes/${classId}/assignments/${assignmentId}`;
 
+// ---------------------------------------------------------------------------
+// Options types
+// ---------------------------------------------------------------------------
+
+export interface ListAssignmentsOptions {
+  readonly classId: string;
+  readonly pagination: PaginationConfig;
+}
+
+export interface FetchAssignmentOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+}
+
+export interface CreateAssignmentOptions {
+  readonly classId: string;
+  readonly body: Record<string, unknown>;
+}
+
+export interface UpdateAssignmentOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+  readonly body: Record<string, unknown>;
+}
+
+export interface DeleteAssignmentOptions {
+  readonly classId: string;
+  readonly assignmentId: string;
+}
+
+// ---------------------------------------------------------------------------
+// API functions
+// ---------------------------------------------------------------------------
+
 export const listAssignments = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  pagination: PaginationConfig,
+  options: ListAssignmentsOptions,
+  ctx: RequestContext,
 ): Stream.Stream<Assignment, EdlinkApiError | EdlinkDecodeError> =>
-  createPaginatedStream(config, httpClient, classAssignmentsPath(classId), AssignmentSchema, pagination);
+  createPaginatedStream(
+    { path: classAssignmentsPath(options.classId), schema: AssignmentSchema },
+    options.pagination,
+    ctx,
+  );
 
 export const fetchAssignment = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
+  options: FetchAssignmentOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Assignment, EdlinkApiError | EdlinkDecodeError> =>
-  fetchOne(config, httpClient, classAssignmentPath(classId, assignmentId), AssignmentSchema);
+  fetchOne({ path: classAssignmentPath(options.classId, options.assignmentId), schema: AssignmentSchema }, ctx);
 
 export const createAssignment = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  body: Record<string, unknown>,
+  options: CreateAssignmentOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Assignment, EdlinkApiError | EdlinkDecodeError> =>
-  createOne(config, httpClient, classAssignmentsPath(classId), AssignmentSchema, body);
+  createOne({ path: classAssignmentsPath(options.classId), schema: AssignmentSchema }, options.body, ctx);
 
 export const updateAssignment = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-  body: Record<string, unknown>,
+  options: UpdateAssignmentOptions,
+  ctx: RequestContext,
 ): Effect.Effect<Assignment, EdlinkApiError | EdlinkDecodeError> =>
-  updateOne(config, httpClient, classAssignmentPath(classId, assignmentId), AssignmentSchema, body);
+  updateOne(
+    { path: classAssignmentPath(options.classId, options.assignmentId), schema: AssignmentSchema },
+    options.body,
+    ctx,
+  );
 
 export const deleteAssignment = (
-  config: EdlinkConfigData,
-  httpClient: HttpClient.HttpClient,
-  classId: string,
-  assignmentId: string,
-): Effect.Effect<void, EdlinkApiError> => deleteOne(config, httpClient, classAssignmentPath(classId, assignmentId));
+  options: DeleteAssignmentOptions,
+  ctx: RequestContext,
+): Effect.Effect<void, EdlinkApiError> => deleteOne(classAssignmentPath(options.classId, options.assignmentId), ctx);

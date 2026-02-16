@@ -5,19 +5,36 @@ import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { TokenResponse } from "../../schemas/token.js";
 
 // ---------------------------------------------------------------------------
+// Shared context for user-level API calls
+// ---------------------------------------------------------------------------
+
+/**
+ * Bundles the user-level config and HTTP client needed by OAuth / profile calls.
+ */
+export interface UserRequestContext {
+  readonly config: EdlinkUserConfigData;
+  readonly httpClient: HttpClient.HttpClient;
+}
+
+// ---------------------------------------------------------------------------
 // Authorization URL builder
 // ---------------------------------------------------------------------------
+
+/**
+ * Options for building the OAuth2 authorization URL.
+ */
+export interface AuthorizationUrlOptions {
+  readonly scopes?: readonly string[];
+  readonly state?: string;
+}
 
 /**
  * Build the Edlink OAuth2 authorization URL.
  *
  * Redirect the user's browser to this URL to start the consent flow.
  */
-export const buildAuthorizationUrl = (
-  config: EdlinkUserConfigData,
-  scopes: readonly string[] = [],
-  state?: string,
-): string => {
+export const buildAuthorizationUrl = (options: AuthorizationUrlOptions, config: EdlinkUserConfigData): string => {
+  const scopes = options.scopes ?? [];
   const params = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
@@ -27,8 +44,8 @@ export const buildAuthorizationUrl = (
   if (scopes.length > 0) {
     params.set("scope", scopes.join(" "));
   }
-  if (state) {
-    params.set("state", state);
+  if (options.state) {
+    params.set("state", options.state);
   }
 
   return `${config.apiBaseUrl}/authentication/authorize?${params.toString()}`;
@@ -52,23 +69,22 @@ const TokenResponseWrapper = Schema.Struct({
  * POST `/v2/authentication/token` with `grant_type=authorization_code`.
  */
 export const exchangeCode = (
-  config: EdlinkUserConfigData,
-  httpClient: HttpClient.HttpClient,
   code: string,
+  ctx: UserRequestContext,
 ): Effect.Effect<TokenResponse, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const decode = Schema.decodeUnknown(TokenResponseWrapper);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}/v2/authentication/token`;
+    const url = `${ctx.config.apiBaseUrl}/v2/authentication/token`;
 
     const request = HttpClientRequest.post(url).pipe(
       HttpClientRequest.bodyJson({
         grant_type: "authorization_code",
         code,
-        client_id: config.clientId,
-        client_secret: Secret.value(config.clientSecret),
-        redirect_uri: config.redirectUri,
+        client_id: ctx.config.clientId,
+        client_secret: Secret.value(ctx.config.clientSecret),
+        redirect_uri: ctx.config.redirectUri,
       }),
     );
 
@@ -124,22 +140,21 @@ export const exchangeCode = (
  * POST `/v2/authentication/token` with `grant_type=refresh_token`.
  */
 export const refreshToken = (
-  config: EdlinkUserConfigData,
-  httpClient: HttpClient.HttpClient,
   refreshTokenValue: string,
+  ctx: UserRequestContext,
 ): Effect.Effect<TokenResponse, EdlinkApiError | EdlinkDecodeError> => {
-  const client = httpClient.pipe(HttpClient.filterStatusOk);
+  const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const decode = Schema.decodeUnknown(TokenResponseWrapper);
 
   return Effect.gen(function* () {
-    const url = `${config.apiBaseUrl}/v2/authentication/token`;
+    const url = `${ctx.config.apiBaseUrl}/v2/authentication/token`;
 
     const request = HttpClientRequest.post(url).pipe(
       HttpClientRequest.bodyJson({
         grant_type: "refresh_token",
         refresh_token: refreshTokenValue,
-        client_id: config.clientId,
-        client_secret: Secret.value(config.clientSecret),
+        client_id: ctx.config.clientId,
+        client_secret: Secret.value(ctx.config.clientSecret),
       }),
     );
 

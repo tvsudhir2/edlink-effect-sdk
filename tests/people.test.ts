@@ -29,7 +29,7 @@ import {
   sectionFixture2,
 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { testConfig } from "./helpers/test-config.js";
+import { makeCtx, testConfig } from "./helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -59,7 +59,7 @@ describe("fetchPerson", () => {
       req = r;
       return single(personFixture);
     });
-    const result = await run(fetchPerson(testConfig, client, PER));
+    const result = await run(fetchPerson(PER, makeCtx(client)));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE}/v2/graph/people/${PER}`);
@@ -69,22 +69,10 @@ describe("fetchPerson", () => {
   });
 
   it("returns EdlinkApiError on 404, EdlinkDecodeError on bad schema", async () => {
-    const err404 = await runFail(
-      fetchPerson(
-        testConfig,
-        makeTestHttpClient(() => fail(404)),
-        PER,
-      ),
-    );
+    const err404 = await runFail(fetchPerson(PER, makeCtx(makeTestHttpClient(() => fail(404)))));
     expect(err404).toBeInstanceOf(EdlinkApiError);
 
-    const errDecode = await runFail(
-      fetchPerson(
-        testConfig,
-        makeTestHttpClient(() => single({ id: "x" })),
-        PER,
-      ),
-    );
+    const errDecode = await runFail(fetchPerson(PER, makeCtx(makeTestHttpClient(() => single({ id: "x" })))));
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
 });
@@ -95,13 +83,7 @@ describe("fetchPerson", () => {
 
 describe("listPeople", () => {
   it("streams items across pages", async () => {
-    const empty = await collect(
-      listPeople(
-        testConfig,
-        makeTestHttpClient(() => page([])),
-        { type: "all" },
-      ),
-    );
+    const empty = await collect(listPeople({ type: "all" }, makeCtx(makeTestHttpClient(() => page([])))));
     expect(empty).toHaveLength(0);
 
     let calls = 0;
@@ -109,7 +91,7 @@ describe("listPeople", () => {
       calls++;
       return calls === 1 ? page([personFixture], `${BASE}/next?cursor=p2`) : page([personFixture2]);
     };
-    const items = await collect(listPeople(testConfig, makeTestHttpClient(multi), { type: "all" }));
+    const items = await collect(listPeople({ type: "all" }, makeCtx(makeTestHttpClient(multi))));
     expect(items).toHaveLength(2);
     expect(calls).toBe(2);
   });
@@ -118,12 +100,13 @@ describe("listPeople", () => {
     let pc = 0;
     const byPages = await collect(
       listPeople(
-        testConfig,
-        makeTestHttpClient(() => {
-          pc++;
-          return page([{ ...personFixture, id: `p-${pc}` }], `${BASE}/next?p=${pc + 1}`);
-        }),
         { type: "pages", maxPages: 2 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            pc++;
+            return page([{ ...personFixture, id: `p-${pc}` }], `${BASE}/next?p=${pc + 1}`);
+          }),
+        ),
       ),
     );
     expect(pc).toBe(2);
@@ -132,19 +115,20 @@ describe("listPeople", () => {
     let rc = 0;
     const byRecs = await collect(
       listPeople(
-        testConfig,
-        makeTestHttpClient(() => {
-          rc++;
-          return page(
-            [
-              { ...personFixture, id: `r-${rc}a` },
-              { ...personFixture2, id: `r-${rc}b` },
-              { ...personFixture3, id: `r-${rc}c` },
-            ],
-            `${BASE}/next?p=${rc + 1}`,
-          );
-        }),
         { type: "records", maxRecords: 5 },
+        makeCtx(
+          makeTestHttpClient(() => {
+            rc++;
+            return page(
+              [
+                { ...personFixture, id: `r-${rc}a` },
+                { ...personFixture2, id: `r-${rc}b` },
+                { ...personFixture3, id: `r-${rc}c` },
+              ],
+              `${BASE}/next?p=${rc + 1}`,
+            );
+          }),
+        ),
       ),
     );
     expect(rc).toBe(2);
@@ -152,21 +136,11 @@ describe("listPeople", () => {
   });
 
   it("returns EdlinkApiError on 500, EdlinkDecodeError on bad data", async () => {
-    const err = await collectFail(
-      listPeople(
-        testConfig,
-        makeTestHttpClient(() => fail(500)),
-        { type: "all" },
-      ),
-    );
+    const err = await collectFail(listPeople({ type: "all" }, makeCtx(makeTestHttpClient(() => fail(500)))));
     expect(err).toBeInstanceOf(EdlinkApiError);
 
     const errDecode = await collectFail(
-      listPeople(
-        testConfig,
-        makeTestHttpClient(() => page([{ id: "bad" }])),
-        { type: "all" },
-      ),
+      listPeople({ type: "all" }, makeCtx(makeTestHttpClient(() => page([{ id: "bad" }])))),
     );
     expect(errDecode).toBeInstanceOf(EdlinkDecodeError);
   });
@@ -181,13 +155,13 @@ describe("listPersonEnrollments", () => {
     let req: any;
     const items = await collect(
       listPersonEnrollments(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([enrollmentFixture, enrollmentFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([enrollmentFixture, enrollmentFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/enrollments`);
@@ -200,13 +174,13 @@ describe("listPersonDistricts", () => {
     let req: any;
     const items = await collect(
       listPersonDistricts(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([districtFixture, districtFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([districtFixture, districtFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/districts`);
@@ -219,13 +193,13 @@ describe("listPersonSchools", () => {
     let req: any;
     const items = await collect(
       listPersonSchools(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([schoolFixture, schoolFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([schoolFixture, schoolFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/schools`);
@@ -238,13 +212,13 @@ describe("listPersonClasses", () => {
     let req: any;
     const items = await collect(
       listPersonClasses(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([classFixture, classFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([classFixture, classFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/classes`);
@@ -257,13 +231,13 @@ describe("listPersonSections", () => {
     let req: any;
     const items = await collect(
       listPersonSections(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([sectionFixture, sectionFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([sectionFixture, sectionFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/sections`);
@@ -276,13 +250,13 @@ describe("listPersonAgents", () => {
     let req: any;
     const items = await collect(
       listPersonAgents(
-        testConfig,
-        makeTestHttpClient((r) => {
-          req = r;
-          return page([agentFixture, agentFixture2]);
-        }),
-        PER,
-        { type: "all" },
+        { personId: PER, pagination: { type: "all" } },
+        makeCtx(
+          makeTestHttpClient((r) => {
+            req = r;
+            return page([agentFixture, agentFixture2]);
+          }),
+        ),
       ),
     );
     expect(req.url).toContain(`/people/${PER}/agents`);

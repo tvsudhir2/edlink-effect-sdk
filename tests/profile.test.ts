@@ -1,6 +1,7 @@
-import { Effect } from "effect";
+import { Effect, Secret } from "effect";
 import { describe, expect, it } from "vitest";
 import { fetchMyProfile } from "../src/api/v2/profile.js";
+import type { EdlinkUserConfigData } from "../src/config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { userProfileFixture } from "./helpers/fixtures.js";
 import { makeTestHttpClient } from "./helpers/mock-http-client.js";
@@ -9,7 +10,14 @@ import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 // Helpers
 // ---------------------------------------------------------------------------
 
-const BASE_URL = "https://test.edlink.api";
+const userConfig: EdlinkUserConfigData = {
+  clientId: "test-client-id",
+  clientSecret: Secret.fromString("test-client-secret"),
+  redirectUri: "https://app.example.com/callback",
+  apiBaseUrl: "https://test.edlink.api",
+};
+
+const BASE_URL = userConfig.apiBaseUrl;
 const ACCESS_TOKEN = "user-access-token-123";
 
 const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
@@ -29,7 +37,7 @@ describe("fetchMyProfile", () => {
       req = r;
       return ok({ $data: userProfileFixture });
     });
-    const result = await run(fetchMyProfile(BASE_URL, client, ACCESS_TOKEN));
+    const result = await run(fetchMyProfile(ACCESS_TOKEN, { config: userConfig, httpClient: client }));
 
     expect(req.method).toBe("GET");
     expect(req.url).toBe(`${BASE_URL}/v2/my/profile`);
@@ -42,22 +50,20 @@ describe("fetchMyProfile", () => {
 
   it("returns EdlinkApiError on 401", async () => {
     const err = await runFail(
-      fetchMyProfile(
-        BASE_URL,
-        makeTestHttpClient(() => fail(401)),
-        ACCESS_TOKEN,
-      ),
+      fetchMyProfile(ACCESS_TOKEN, {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => fail(401)),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkApiError);
   });
 
   it("returns EdlinkDecodeError on bad response shape", async () => {
     const err = await runFail(
-      fetchMyProfile(
-        BASE_URL,
-        makeTestHttpClient(() => ok({ $data: { id: "x" } })),
-        ACCESS_TOKEN,
-      ),
+      fetchMyProfile(ACCESS_TOKEN, {
+        config: userConfig,
+        httpClient: makeTestHttpClient(() => ok({ $data: { id: "x" } })),
+      }),
     );
     expect(err).toBeInstanceOf(EdlinkDecodeError);
   });
