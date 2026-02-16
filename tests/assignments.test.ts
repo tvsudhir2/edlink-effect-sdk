@@ -6,10 +6,41 @@ import {
   createAssignment,
   updateAssignment,
   deleteAssignment,
-} from "../api/v2/assignments.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../errors.js";
+} from "../src/api/v2/assignments.js";
+import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
 import { makeTestHttpClient, type MockHandler } from "./helpers/mock-http-client.js";
-import { testConfig, assignmentFixture, assignmentFixture2, assignmentFixture3 } from "./helpers/fixtures.js";
+import { testConfig } from "./helpers/test-config.js";
+
+// ---------------------------------------------------------------------------
+// Fixtures — domain-specific, colocated with tests
+// ---------------------------------------------------------------------------
+
+const assignmentFixture = {
+  id: "asgn-001",
+  title: "Week 3 Reading Response",
+  description: "<p>Read chapter 3 and respond.</p>",
+  description_plaintext: "Read chapter 3 and respond.",
+  state: "open" as const,
+  assignee_mode: "all" as const,
+  assignee_ids: [],
+  category_id: null,
+  session_id: "session-001",
+  grading_type: "points",
+  max_attempts: 1,
+  points_possible: 100,
+  submission_types: ["online_text_entry"],
+  attachments: [{ type: "link" as const, url: "https://example.com/chapter3.pdf", title: "Chapter 3" }],
+  properties: {},
+  display_date: null,
+  due_date: "2026-03-01T23:59:59.000Z",
+  start_date: "2026-02-15T00:00:00.000Z",
+  end_date: null,
+  created_date: "2026-02-10T12:00:00.000Z",
+  updated_date: "2026-02-10T12:00:00.000Z",
+};
+
+const assignmentFixture2 = { ...assignmentFixture, id: "asgn-002", title: "Week 4 Essay" };
+const assignmentFixture3 = { ...assignmentFixture, id: "asgn-003", title: "Week 5 Lab Report" };
 
 // ---------------------------------------------------------------------------
 // Helpers
