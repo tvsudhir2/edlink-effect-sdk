@@ -1,5 +1,5 @@
 {
-  "name": "@tvsudhir2/edlink-effect-sdk",
+  "name": "@flowpure/edlink-effect-sdk",
   "version": "1.0.0",
   "description": "Edlink SDK built with Effect-TS — functional, type-safe, stream-based",
   "main": "dist/index.js",
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/tvsudhir2/edlink-effect-sdk#readme",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "prepublishOnly": "pnpm run build",
