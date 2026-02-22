@@ -17,6 +17,22 @@ import { NodeRuntime } from "@effect/platform-node";
 import { Effect, Ref, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
+import type { EdlinkClass } from "../src/schemas/class.js";
+
+const processClass = Effect.fn("processClass")((cls: EdlinkClass, countRef: Ref.Ref<number>) =>
+  Effect.gen(function* () {
+    // Simulate async work per item (e.g., enriching from another API)
+    yield* Effect.sleep("10 millis");
+
+    // Ref.updateAndGet is atomic — safe across concurrent fibers
+    // A plain `let count++` would race here: two fibers could both read the
+    // same value before either writes back, losing increments.
+    const count = yield* Ref.updateAndGet(countRef, (n) => n + 1);
+    if (count === 1 || count % 10 === 0) {
+      yield* Effect.log(`  #${count}  id=${cls.id}  name=${cls.name ?? "(unnamed)"}`);
+    }
+  })
+);
 
 const CONCURRENCY = 10;
 
@@ -27,22 +43,7 @@ const program = Effect.gen(function* () {
   const countRef = yield* Ref.make(0);
 
   yield* client.classes.list().pipe(
-    Stream.mapEffect(
-      (cls) =>
-        Effect.gen(function* () {
-          // Simulate async work per item (e.g., enriching from another API)
-          yield* Effect.sleep("10 millis");
-
-          // Ref.updateAndGet is atomic — safe across concurrent fibers
-          // A plain `let count++` would race here: two fibers could both read the
-          // same value before either writes back, losing increments.
-          const count = yield* Ref.updateAndGet(countRef, (n) => n + 1);
-          if (count === 1 || count % 10 === 0) {
-            yield* Effect.log(`  #${count}  id=${cls.id}  name=${cls.name ?? "(unnamed)"}`);
-          }
-        }),
-      { concurrency: CONCURRENCY },
-    ),
+    Stream.mapEffect((cls) => processClass(cls, countRef), { concurrency: CONCURRENCY }),
     Stream.runDrain,
   );
 
