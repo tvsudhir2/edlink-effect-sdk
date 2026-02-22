@@ -1,9 +1,9 @@
 # Edlink Effect SDK
 
-[![npm version](https://img.shields.io/npm/v/@tvsudhir2/edlink-effect-sdk)](https://www.npmjs.com/package/@tvsudhir2/edlink-effect-sdk)
-[![license](https://img.shields.io/npm/l/@tvsudhir2/edlink-effect-sdk)](./LICENSE)
-[![types](https://img.shields.io/npm/types/@tvsudhir2/edlink-effect-sdk)](https://www.npmjs.com/package/@tvsudhir2/edlink-effect-sdk)
-[![node](https://img.shields.io/node/v/@tvsudhir2/edlink-effect-sdk)](https://nodejs.org)
+[![npm version](https://img.shields.io/npm/v/@flowpure/edlink-effect-sdk)](https://www.npmjs.com/package/@flowpure/edlink-effect-sdk)
+[![license](https://img.shields.io/npm/l/@flowpure/edlink-effect-sdk)](./LICENSE)
+[![types](https://img.shields.io/npm/types/@flowpure/edlink-effect-sdk)](https://www.npmjs.com/package/@flowpure/edlink-effect-sdk)
+[![node](https://img.shields.io/node/v/@flowpure/edlink-effect-sdk)](https://nodejs.org)
 
 Type-safe, functional SDK for the [Edlink](https://ed.link) v2 API — built on [Effect-TS](https://effect.website).
 
@@ -14,7 +14,7 @@ Every list endpoint returns a **lazy `Stream`** with cursor-based pagination. Ev
 ## Install
 
 ```bash
-pnpm add @tvsudhir2/edlink-effect-sdk effect @effect/platform
+pnpm add @flowpure/edlink-effect-sdk effect @effect/platform
 ```
 
 > **Note:** `effect` and `@effect/platform` are peer-level requirements. Add a platform-specific runtime package for your environment (see [Runtime Compatibility](#runtime-compatibility)).
@@ -24,7 +24,7 @@ pnpm add @tvsudhir2/edlink-effect-sdk effect @effect/platform
 ```ts
 import { Effect, Stream, Chunk } from "effect";
 import { NodeRuntime } from "@effect/platform-node";
-import { EdlinkClient, EdlinkLive } from "@tvsudhir2/edlink-effect-sdk";
+import { EdlinkClient, EdlinkLive } from "@flowpure/edlink-effect-sdk";
 
 const program = Effect.gen(function* () {
   const client = yield* EdlinkClient;
@@ -74,7 +74,7 @@ program.pipe(Effect.provide(EdlinkLive), BunRuntime.runMain);
 
 ```ts
 import { Effect } from "npm:effect";
-import { EdlinkClient, EdlinkLive } from "npm:@tvsudhir2/edlink-effect-sdk";
+import { EdlinkClient, EdlinkLive } from "npm:@flowpure/edlink-effect-sdk";
 
 // Use Effect.runPromise directly — Deno has global fetch
 Effect.runPromise(program.pipe(Effect.provide(EdlinkLive)));
@@ -278,7 +278,7 @@ For per-user actions (e.g. fetching a student's own profile), the SDK provides a
 
 ```ts
 import { Effect } from "effect";
-import { EdlinkUserClient, EdlinkUserLive } from "@tvsudhir2/edlink-effect-sdk";
+import { EdlinkUserClient, EdlinkUserLive } from "@flowpure/edlink-effect-sdk";
 
 const program = Effect.gen(function* () {
   const userClient = yield* EdlinkUserClient;
@@ -303,7 +303,7 @@ program.pipe(Effect.provide(EdlinkUserLive));
 ```ts
 import { Layer } from "effect";
 import { FetchHttpClient } from "@effect/platform";
-import { EdlinkUserClientLive, EdlinkUserConfig } from "@tvsudhir2/edlink-effect-sdk";
+import { EdlinkUserClientLive, EdlinkUserConfig } from "@flowpure/edlink-effect-sdk";
 
 const MyUserLive = EdlinkUserClientLive.pipe(
   Layer.provide(EdlinkUserConfig.Live),
@@ -327,7 +327,7 @@ The SDK exposes two tagged error types. Both extend `Data.TaggedError`, so you c
 
 ```ts
 import { Effect } from "effect";
-import { EdlinkApiError, EdlinkDecodeError } from "@tvsudhir2/edlink-effect-sdk";
+import { EdlinkApiError, EdlinkDecodeError } from "@flowpure/edlink-effect-sdk";
 
 yield* client.schools.fetch(id).pipe(
   Effect.catchTag("EdlinkApiError", (err) =>
