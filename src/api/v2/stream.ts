@@ -99,5 +99,5 @@ export const createPaginatedStream = <A, I>(
 
       return Option.some([emitted, next] as const);
     }),
-  ).pipe(Stream.flatMap((items) => Stream.fromIterable(items)));
+  ).pipe(Stream.flatMap(Stream.fromIterable));
 };
