@@ -1,12 +1,12 @@
 /**
- * Example 7 — Delete an Assignment
+ * Example 8 — Delete an Assignment
  *
  * Strategy : Single DELETE — remove an assignment from a class
  * Use-case : Teacher removing a draft or cancelled assignment
  *
  * Set CLASS_ID and ASSIGNMENT_ID in your .env.local file.
  *
- * Run: pnpm ex-7
+ * Run: pnpm ex-8
  */
 
 import { NodeRuntime } from "@effect/platform-node";
@@ -15,7 +15,7 @@ import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo("Example 7: Delete an assignment");
+  yield* Effect.logInfo("Example 8: Delete an assignment");
 
   const classId = yield* Config.string("CLASS_ID");
   const assignmentId = yield* Config.string("ASSIGNMENT_ID");

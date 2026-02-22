@@ -1,12 +1,12 @@
 /**
- * Example 5 — Create an Assignment
+ * Example 6 — Create an Assignment
  *
  * Strategy : Single POST — create a new assignment in a class
  * Use-case : Teacher creating homework from an LMS integration
  *
  * Set CLASS_ID in your .env.local file.
  *
- * Run: pnpm ex-5
+ * Run: pnpm ex-6
  */
 
 import { NodeRuntime } from "@effect/platform-node";
@@ -15,7 +15,7 @@ import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo("Example 5: Create a new assignment");
+  yield* Effect.logInfo("Example 6: Create a new assignment");
 
   const classId = yield* Config.string("CLASS_ID");
   const client = yield* EdlinkClient;

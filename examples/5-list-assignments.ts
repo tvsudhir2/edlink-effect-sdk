@@ -1,5 +1,5 @@
 /**
- * Example 4 — List Assignments for a Class
+ * Example 5 — List Assignments for a Class
  *
  * Strategy : Paginated stream — collect all assignments for a class
  * Memory   : Low (default 3-page limit)
@@ -7,7 +7,7 @@
  *
  * Set CLASS_ID in your .env.local file.
  *
- * Run: pnpm ex-4
+ * Run: pnpm ex-5
  */
 
 import { NodeRuntime } from "@effect/platform-node";
@@ -16,7 +16,7 @@ import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo("Example 4: List assignments for a class");
+  yield* Effect.logInfo("Example 5: List assignments for a class");
 
   const classId = yield* Config.string("CLASS_ID");
   const client = yield* EdlinkClient;
