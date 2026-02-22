@@ -36,7 +36,7 @@ const program = Effect.gen(function* () {
   let count = 0;
 
   yield* client.classes.list().pipe(
-    Stream.runForEach((cls) => processClass(cls, ++count))
+    Stream.runForEach((cls) => processClass(cls, ++count)),
   );
 
   yield* Effect.log(`Processed ${count} classes sequentially`);
