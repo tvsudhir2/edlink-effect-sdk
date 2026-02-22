@@ -1,6 +1,6 @@
 {
   "name": "@flowpure/edlink-effect-sdk",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Edlink SDK built with Effect-TS — functional, type-safe, stream-based",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
