@@ -1,5 +1,5 @@
 /**
- * Example 2 — Fetch Events with Max Record Limit (50)
+ * Example 2 — Fetch Classes with Max Record Limit (50)
  *
  * Strategy : Record cap
  * Memory   : Predictable (stops at exactly N records)
@@ -14,17 +14,17 @@ import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
 const program = Effect.gen(function* () {
-  yield* Effect.logInfo("Example 2: Fetch events — max 50 records");
+  yield* Effect.logInfo("Example 2: Fetch classes — max 50 records");
 
   const client = yield* EdlinkClient;
 
-  const events = yield* client.events
+  const classes = yield* client.classes
     .list({ type: "records", maxRecords: 50 })
     .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
-  yield* Effect.log(`Fetched ${events.length} events (capped at 50)`);
+  yield* Effect.log(`Fetched ${classes.length} classes (capped at 50)`);
 
-  yield* Effect.forEach(events.slice(0, 3), (evt, idx) => Effect.log(`  ${idx + 1}. id=${evt.id}  type=${evt.type}`));
+  yield* Effect.forEach(classes.slice(0, 3), (cls, idx) => Effect.log(`  ${idx + 1}. id=${cls.id}  name=${cls.name ?? "(unnamed)"}`));
 }).pipe(Effect.provide(EdlinkLive));
 
 NodeRuntime.runMain(program);
