@@ -9,7 +9,7 @@
  */
 
 import { NodeRuntime } from "@effect/platform-node";
-import { Effect, Ref, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -17,19 +17,18 @@ const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 3: Process classes sequentially (memory-efficient)");
 
   const client = yield* EdlinkClient;
-  const countRef = yield* Ref.make(0);
+  let count = 0;
 
   yield* Stream.runForEach(client.classes.list(), (cls) =>
     Effect.gen(function* () {
-      const count = yield* Ref.updateAndGet(countRef, (n) => n + 1);
+      count++;
       if (count === 1 || count % 10 === 0) {
         yield* Effect.log(`  #${count}  id=${cls.id}  name=${cls.name ?? "(unnamed)"}`);
       }
     }),
   );
 
-  const total = yield* Ref.get(countRef);
-  yield* Effect.log(`Processed ${total} classes sequentially`);
+  yield* Effect.log(`Processed ${count} classes sequentially`);
 }).pipe(Effect.provide(EdlinkLive));
 
 NodeRuntime.runMain(program);
