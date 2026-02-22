@@ -18,7 +18,7 @@ const program = Effect.gen(function* () {
 
   const client = yield* EdlinkClient;
 
-  const events = yield* client.getEventsStream().pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+  const events = yield* client.events.list().pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
   yield* Effect.log(`Fetched ${events.length} events`);
 

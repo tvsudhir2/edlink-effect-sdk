@@ -7,7 +7,7 @@ import * as ClassesApi from "./api/v2/classes.js";
 import * as CoursesApi from "./api/v2/courses.js";
 import * as DistrictsApi from "./api/v2/districts.js";
 import * as EnrollmentsApi from "./api/v2/enrollments.js";
-import { createEventsStream } from "./api/v2/events.js";
+import * as EventsApi from "./api/v2/events.js";
 import * as LicensesApi from "./api/v2/licenses.js";
 import * as PeopleApi from "./api/v2/people.js";
 import type { RequestContext } from "./api/v2/request.js";
@@ -116,6 +116,11 @@ interface LicensesService {
   readonly list: (config?: PaginationConfig) => Stream.Stream<License, ApiErrors>;
 }
 
+interface EventsService {
+  readonly list: (config?: PaginationConfig) => Stream.Stream<EdlinkEvent, ApiErrors>;
+  readonly fetch: (id: string) => Effect.Effect<EdlinkEvent, ApiErrors>;
+}
+
 interface AssignmentsService {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Assignment, ApiErrors>;
   readonly fetch: (classId: string, assignmentId: string) => Effect.Effect<Assignment, ApiErrors>;
@@ -160,11 +165,7 @@ interface SubmissionsService {
 export class EdlinkClient extends Context.Tag("EdlinkClient")<
   EdlinkClient,
   {
-    /** Lazy, paginated stream of Edlink events */
-    readonly getEventsStream: (
-      config?: PaginationConfig,
-    ) => Stream.Stream<EdlinkEvent, EdlinkApiError | EdlinkDecodeError>;
-
+    readonly events: EventsService;
     readonly districts: DistrictsService;
     readonly schools: SchoolsService;
     readonly courses: CoursesService;
@@ -199,7 +200,10 @@ const makeEdlinkClient = Effect.gen(function* () {
   const pg = (p?: PaginationConfig) => p ?? defaultPagination;
 
   return {
-    getEventsStream: (pagination?: PaginationConfig) => createEventsStream(pg(pagination), ctx),
+    events: {
+      list: (p?: PaginationConfig) => EventsApi.listEvents({ pagination: pg(p) }, ctx),
+      fetch: (id: string) => EventsApi.fetchEvent({ eventId: id }, ctx),
+    },
 
     districts: {
       list: (p?: PaginationConfig) => DistrictsApi.listDistricts(pg(p), ctx),

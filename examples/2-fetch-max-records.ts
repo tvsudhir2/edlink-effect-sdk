@@ -18,8 +18,8 @@ const program = Effect.gen(function* () {
 
   const client = yield* EdlinkClient;
 
-  const events = yield* client
-    .getEventsStream({ type: "records", maxRecords: 50 })
+  const events = yield* client.events
+    .list({ type: "records", maxRecords: 50 })
     .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
   yield* Effect.log(`Fetched ${events.length} events (capped at 50)`);

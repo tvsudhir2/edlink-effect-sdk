@@ -30,8 +30,8 @@ const program = Effect.gen(function* () {
   const client = yield* EdlinkClient;
 
   // Fetch up to 3 pages of events (default)
-  const events = yield* client
-    .getEventsStream()
+  const events = yield* client.events
+    .list()
     .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
   console.log(`Fetched ${events.length} events`);

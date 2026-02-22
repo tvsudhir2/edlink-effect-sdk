@@ -19,7 +19,7 @@ const program = Effect.gen(function* () {
   const client = yield* EdlinkClient;
   const countRef = yield* Ref.make(0);
 
-  yield* Stream.runForEach(client.getEventsStream(), (event) =>
+  yield* Stream.runForEach(client.events.list(), (event) =>
     Effect.gen(function* () {
       const count = yield* Ref.updateAndGet(countRef, (n) => n + 1);
       if (count === 1 || count % 10 === 0) {
