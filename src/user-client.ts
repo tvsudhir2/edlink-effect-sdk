@@ -1,5 +1,5 @@
-import { HttpClient } from "@effect/platform";
-import { Context, Effect, Layer, Option } from "effect";
+import { HttpClient } from "effect/unstable/http";
+import { Effect, Layer, Option, ServiceMap } from "effect";
 import type { UserRequestContext } from "./api/v2/oauth.js";
 import * as OAuth from "./api/v2/oauth.js";
 import * as ProfileApi from "./api/v2/profile.js";
@@ -25,7 +25,7 @@ type ApiErrors = EdlinkApiError | EdlinkDecodeError;
  * Handles authorization code exchange, token refresh, profile fetching,
  * and automatic token lifecycle management via a pluggable `TokenStore`.
  */
-export class EdlinkUserClient extends Context.Tag("EdlinkUserClient")<
+export class EdlinkUserClient extends ServiceMap.Service<
   EdlinkUserClient,
   {
     /**
@@ -62,7 +62,7 @@ export class EdlinkUserClient extends Context.Tag("EdlinkUserClient")<
      */
     readonly removeTokens: (userId: string) => Effect.Effect<void>;
   }
->() {}
+>()("EdlinkUserClient") {}
 
 // ---------------------------------------------------------------------------
 // Token helpers

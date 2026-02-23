@@ -14,9 +14,9 @@ export class EdlinkEvent extends Schema.Class<EdlinkEvent>("EdlinkEvent")({
 
   // --- Other fields ---
   created_date: Schema.optional(Schema.String),
-  data: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+  data: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   date: Schema.optional(Schema.String),
-  properties: Schema.optional(Schema.Record({ key: Schema.String, value: Schema.Unknown })),
+  properties: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
   target: Schema.optional(Schema.String),
   type: Schema.String,
   updated_date: Schema.optional(Schema.String),

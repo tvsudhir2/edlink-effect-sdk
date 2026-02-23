@@ -9,7 +9,7 @@
  */
 
 import { NodeRuntime } from "@effect/platform-node";
-import { Chunk, Effect, Stream } from "effect";
+import { Effect, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -20,7 +20,7 @@ const program = Effect.gen(function* () {
 
   const classes = yield* client.classes
     .list({ type: "records", maxRecords: 50 })
-    .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+    .pipe(Stream.runCollect);
 
   yield* Effect.log(`Fetched ${classes.length} classes (capped at 50)`);
 

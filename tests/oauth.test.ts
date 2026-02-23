@@ -1,4 +1,4 @@
-import { Effect, Secret } from "effect";
+import { Effect, Redacted } from "effect";
 import { describe, expect, it } from "vitest";
 import { buildAuthorizationUrl, exchangeCode, refreshToken } from "../src/api/v2/oauth.js";
 import type { EdlinkUserConfigData } from "../src/config.js";
@@ -12,7 +12,7 @@ import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 
 const userConfig: EdlinkUserConfigData = {
   clientId: "test-client-id",
-  clientSecret: Secret.fromString("test-client-secret"),
+  clientSecret: Redacted.make("test-client-secret"),
   redirectUri: "https://app.example.com/callback",
   apiBaseUrl: "https://test.edlink.api",
 };

@@ -1,4 +1,4 @@
-import { HttpClient, HttpClientRequest } from "@effect/platform";
+import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { Effect, Schema } from "effect";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { UserProfile } from "../../schemas/token.js";
@@ -26,7 +26,7 @@ export const fetchMyProfile = (
   ctx: UserRequestContext,
 ): Effect.Effect<UserProfile, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
-  const decode = Schema.decodeUnknown(ProfileResponseSchema);
+  const decode = Schema.decodeUnknownEffect(ProfileResponseSchema);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}/v2/my/profile`;

@@ -17,7 +17,7 @@ export class District extends Schema.Class<District>("District")({
   locale: Schema.NullOr(Schema.String),
   name: Schema.String,
   picture_url: Schema.NullOr(Schema.String),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   time_zone: Schema.NullOr(Schema.String),
   updated_date: Schema.String,
 }) {}

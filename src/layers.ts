@@ -1,4 +1,4 @@
-import { FetchHttpClient } from "@effect/platform";
+import { FetchHttpClient } from "effect/unstable/http";
 import { Layer } from "effect";
 import { EdlinkClientLive } from "./client.js";
 import { EdlinkConfig, EdlinkUserConfig } from "./config.js";

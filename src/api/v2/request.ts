@@ -1,5 +1,5 @@
-import { type HttpBody, HttpClient, HttpClientRequest } from "@effect/platform";
-import { Effect, Schema, Secret } from "effect";
+import { type HttpBody, HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { Effect, Redacted, Schema } from "effect";
 import type { EdlinkConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 
@@ -14,16 +14,16 @@ export interface RequestContext {
 }
 
 /** Identifies an API endpoint and how to decode its response. */
-export interface EndpointOptions<A, I> {
+export interface EndpointOptions<A> {
   readonly path: string;
-  readonly schema: Schema.Schema<A, I>;
+  readonly schema: Schema.Decoder<A>;
 }
 
 // ---------------------------------------------------------------------------
 // Single-entity response schema
 // ---------------------------------------------------------------------------
 
-const SingleResponseSchema = <A, I>(itemSchema: Schema.Schema<A, I>) =>
+const SingleResponseSchema = <A>(itemSchema: Schema.Decoder<A>) =>
   Schema.Struct({
     $data: itemSchema,
   });
@@ -32,19 +32,19 @@ const SingleResponseSchema = <A, I>(itemSchema: Schema.Schema<A, I>) =>
 // fetchOne — GET a single entity by ID
 // ---------------------------------------------------------------------------
 
-export const fetchOne = <A, I>(
-  endpoint: EndpointOptions<A, I>,
+export const fetchOne = <A>(
+  endpoint: EndpointOptions<A>,
   ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const responseSchema = SingleResponseSchema(endpoint.schema);
-  const decode = Schema.decodeUnknown(responseSchema);
+  const decode = Schema.decodeUnknownEffect(responseSchema);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
     const request = HttpClientRequest.get(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+      HttpClientRequest.bearerToken(Redacted.value(ctx.config.clientSecret)),
     );
 
     const response = yield* client.execute(request).pipe(
@@ -85,20 +85,20 @@ export const fetchOne = <A, I>(
 // createOne — POST a new entity
 // ---------------------------------------------------------------------------
 
-export const createOne = <A, I>(
-  endpoint: EndpointOptions<A, I>,
+export const createOne = <A>(
+  endpoint: EndpointOptions<A>,
   body: Record<string, unknown>,
   ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const responseSchema = SingleResponseSchema(endpoint.schema);
-  const decode = Schema.decodeUnknown(responseSchema);
+  const decode = Schema.decodeUnknownEffect(responseSchema);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
     const request = HttpClientRequest.post(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+      HttpClientRequest.bearerToken(Redacted.value(ctx.config.clientSecret)),
       HttpClientRequest.bodyJson(body),
     );
 
@@ -149,20 +149,20 @@ export const createOne = <A, I>(
 // updateOne — PATCH an existing entity
 // ---------------------------------------------------------------------------
 
-export const updateOne = <A, I>(
-  endpoint: EndpointOptions<A, I>,
+export const updateOne = <A>(
+  endpoint: EndpointOptions<A>,
   body: Record<string, unknown>,
   ctx: RequestContext,
 ): Effect.Effect<A, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
   const responseSchema = SingleResponseSchema(endpoint.schema);
-  const decode = Schema.decodeUnknown(responseSchema);
+  const decode = Schema.decodeUnknownEffect(responseSchema);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}${endpoint.path}`;
 
     const request = HttpClientRequest.patch(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+      HttpClientRequest.bearerToken(Redacted.value(ctx.config.clientSecret)),
       HttpClientRequest.bodyJson(body),
     );
 
@@ -218,8 +218,8 @@ export const deleteOne = (path: string, ctx: RequestContext): Effect.Effect<void
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}${path}`;
 
-    const request = HttpClientRequest.del(url).pipe(
-      HttpClientRequest.bearerToken(Secret.value(ctx.config.clientSecret)),
+    const request = HttpClientRequest.delete(url).pipe(
+      HttpClientRequest.bearerToken(Redacted.value(ctx.config.clientSecret)),
     );
 
     yield* client.execute(request).pipe(

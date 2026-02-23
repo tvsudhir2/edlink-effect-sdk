@@ -11,7 +11,7 @@
  */
 
 import { NodeRuntime } from "@effect/platform-node";
-import { Chunk, Config, Duration, Effect, Stream } from "effect";
+import { Config, Duration, Effect, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -21,7 +21,7 @@ const program = Effect.gen(function* () {
   const classId = yield* Config.string("CLASS_ID");
   const client = yield* EdlinkClient;
 
-  const assignments = yield* client.assignments.list(classId).pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+  const assignments = yield* client.assignments.list(classId).pipe(Stream.runCollect);
 
   yield* Effect.log(`Fetched ${assignments.length} assignments`);
 

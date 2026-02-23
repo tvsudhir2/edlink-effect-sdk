@@ -25,7 +25,7 @@ export class Assignment extends Schema.Class<Assignment>("Assignment")({
   grading_type: Schema.String,
   max_attempts: Schema.Number,
   points_possible: Schema.Number,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   start_date: Schema.NullOr(Schema.String),
   state: AssignmentState,
   submission_types: Schema.Array(Schema.String),

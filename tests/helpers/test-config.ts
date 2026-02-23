@@ -1,5 +1,5 @@
-import type { HttpClient } from "@effect/platform";
-import { Secret } from "effect";
+import type { HttpClient } from "effect/unstable/http";
+import { Redacted } from "effect";
 import type { RequestContext } from "../../src/api/v2/request.js";
 import type { EdlinkConfigData } from "../../src/config.js";
 
@@ -8,7 +8,7 @@ import type { EdlinkConfigData } from "../../src/config.js";
 // ---------------------------------------------------------------------------
 
 export const testConfig: EdlinkConfigData = {
-  clientSecret: Secret.fromString("test-secret"),
+  clientSecret: Redacted.make("test-secret"),
   apiBaseUrl: "https://test.edlink.api",
   defaultMaxPages: 3,
 };

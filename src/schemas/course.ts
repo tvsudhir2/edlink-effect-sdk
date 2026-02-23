@@ -18,7 +18,7 @@ export class Course extends Schema.Class<Course>("Course")({
   grade_levels: Schema.Array(GradeLevel),
   identifiers: Schema.Array(Identifier),
   name: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   subjects: Schema.Array(Subject),
   updated_date: Schema.String,
 }) {}

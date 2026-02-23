@@ -1,5 +1,5 @@
-import { HttpClient } from "@effect/platform";
-import { Context, Effect, Layer, type Stream } from "effect";
+import { HttpClient } from "effect/unstable/http";
+import { Effect, Layer, ServiceMap, type Stream } from "effect";
 import * as AgentsApi from "./api/v2/agents.js";
 import * as AssignmentsApi from "./api/v2/assignments.js";
 import * as CategoriesApi from "./api/v2/categories.js";
@@ -162,7 +162,7 @@ interface SubmissionsService {
  *   client.schools.fetch(id)
  *   client.assignments.create(classId, body)
  */
-export class EdlinkClient extends Context.Tag("EdlinkClient")<
+export class EdlinkClient extends ServiceMap.Service<
   EdlinkClient,
   {
     readonly events: EventsService;
@@ -180,7 +180,7 @@ export class EdlinkClient extends Context.Tag("EdlinkClient")<
     readonly categories: CategoriesService;
     readonly submissions: SubmissionsService;
   }
->() {}
+>()("EdlinkClient") {}
 
 // ---------------------------------------------------------------------------
 // Construction

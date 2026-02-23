@@ -55,9 +55,8 @@
     "access": "public"
   },
   "dependencies": {
-    "@effect/platform": "^0.87.7",
-    "@effect/platform-node": "^0.88.11",
-    "effect": "^3.19.13"
+    "@effect/platform-node": "^4.0.0-beta.11",
+    "effect": "^4.0.0-beta.11"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",

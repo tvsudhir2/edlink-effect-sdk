@@ -1,4 +1,4 @@
-import { Context, Effect, HashMap, Layer, type Option, Ref } from "effect";
+import { Effect, HashMap, Layer, type Option, Ref, ServiceMap } from "effect";
 import type { TokenData } from "./schemas/token.js";
 
 // ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ export interface TokenStoreShape {
   readonly delete: (userId: string) => Effect.Effect<void>;
 }
 
-export class TokenStore extends Context.Tag("TokenStore")<TokenStore, TokenStoreShape>() {}
+export class TokenStore extends ServiceMap.Service<TokenStore, TokenStoreShape>()("TokenStore") {}
 
 // ---------------------------------------------------------------------------
 // InMemoryTokenStore — default implementation

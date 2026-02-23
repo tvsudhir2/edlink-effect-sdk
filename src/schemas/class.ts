@@ -24,7 +24,7 @@ export class EdlinkClass extends Schema.Class<EdlinkClass>("EdlinkClass")({
   periods: Schema.Array(Schema.String),
   picture_url: Schema.NullOr(Schema.String),
   products: Schema.optional(Schema.Array(Product)),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   state: ClassState,
   subjects: Schema.Array(Subject),
   time_zone: Schema.NullOr(Schema.String),

@@ -18,7 +18,7 @@ export class Section extends Schema.Class<Section>("Section")({
   name: Schema.String,
   periods: Schema.Array(Schema.String),
   picture_url: Schema.NullOr(Schema.String),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   state: SectionState,
   time_zone: Schema.NullOr(Schema.String),
   updated_date: Schema.String,

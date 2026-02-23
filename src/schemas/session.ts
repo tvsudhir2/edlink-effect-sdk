@@ -16,7 +16,7 @@ export class Session extends Schema.Class<Session>("Session")({
   end_date: Schema.NullOr(Schema.String),
   identifiers: Schema.Array(Identifier),
   name: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   start_date: Schema.NullOr(Schema.String),
   state: SessionState,
   type: SessionType,

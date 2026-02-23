@@ -1,4 +1,4 @@
-import { HttpClient, type HttpClientRequest, HttpClientResponse } from "@effect/platform";
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 import { Effect } from "effect";
 
 // ---------------------------------------------------------------------------

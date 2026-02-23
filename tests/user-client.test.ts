@@ -1,5 +1,5 @@
-import { HttpClient } from "@effect/platform";
-import { Effect, Layer, Option, Secret } from "effect";
+import { HttpClient } from "effect/unstable/http";
+import { Effect, Layer, Option, Redacted } from "effect";
 import { describe, expect, it } from "vitest";
 import type { EdlinkUserConfigData } from "../src/config.js";
 import { EdlinkUserConfig } from "../src/config.js";
@@ -16,7 +16,7 @@ import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client
 
 const userConfig: EdlinkUserConfigData = {
   clientId: "test-client-id",
-  clientSecret: Secret.fromString("test-client-secret"),
+  clientSecret: Redacted.make("test-client-secret"),
   redirectUri: "https://app.example.com/callback",
   apiBaseUrl: "https://test.edlink.api",
 };

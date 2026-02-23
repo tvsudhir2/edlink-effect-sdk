@@ -1,5 +1,5 @@
-import { type HttpBody, HttpClient, HttpClientRequest } from "@effect/platform";
-import { Effect, Schema, Secret } from "effect";
+import { type HttpBody, HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { Effect, Redacted, Schema } from "effect";
 import type { EdlinkUserConfigData } from "../../config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import { TokenResponse } from "../../schemas/token.js";
@@ -73,7 +73,7 @@ export const exchangeCode = (
   ctx: UserRequestContext,
 ): Effect.Effect<TokenResponse, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
-  const decode = Schema.decodeUnknown(TokenResponseWrapper);
+  const decode = Schema.decodeUnknownEffect(TokenResponseWrapper);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}/v2/authentication/token`;
@@ -83,7 +83,7 @@ export const exchangeCode = (
         grant_type: "authorization_code",
         code,
         client_id: ctx.config.clientId,
-        client_secret: Secret.value(ctx.config.clientSecret),
+        client_secret: Redacted.value(ctx.config.clientSecret),
         redirect_uri: ctx.config.redirectUri,
       }),
     );
@@ -144,7 +144,7 @@ export const refreshToken = (
   ctx: UserRequestContext,
 ): Effect.Effect<TokenResponse, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
-  const decode = Schema.decodeUnknown(TokenResponseWrapper);
+  const decode = Schema.decodeUnknownEffect(TokenResponseWrapper);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}/v2/authentication/token`;
@@ -154,7 +154,7 @@ export const refreshToken = (
         grant_type: "refresh_token",
         refresh_token: refreshTokenValue,
         client_id: ctx.config.clientId,
-        client_secret: Secret.value(ctx.config.clientSecret),
+        client_secret: Redacted.value(ctx.config.clientSecret),
       }),
     );
 

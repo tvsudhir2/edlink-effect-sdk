@@ -18,7 +18,7 @@ export class Product extends Schema.Class<Product>("Product")({
   license_duration: Schema.Number,
   name: Schema.String,
   picture_url: Schema.String,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   soft_cap: Schema.optional(Schema.Number),
   state: ProductState,
   tags: Schema.Array(Schema.String),

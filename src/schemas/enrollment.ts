@@ -17,7 +17,7 @@ export class Enrollment extends Schema.Class<Enrollment>("Enrollment")({
   end_date: Schema.NullOr(Schema.String),
   identifiers: Schema.Array(Identifier),
   primary: Schema.NullOr(Schema.Boolean),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   role: Role,
   start_date: Schema.NullOr(Schema.String),
   state: EnrollmentState,

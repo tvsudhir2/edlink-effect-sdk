@@ -31,7 +31,7 @@ export class Submission extends Schema.Class<Submission>("Submission")({
   grade_comment: Schema.NullOr(Schema.String),
   grade_points: Schema.NullOr(Schema.Number),
   override_due_date: Schema.NullOr(Schema.String),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   state: SubmissionState,
   updated_date: Schema.String,
 }) {}

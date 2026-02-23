@@ -22,7 +22,7 @@ export class School extends Schema.Class<School>("School")({
   name: Schema.String,
   picture_url: Schema.NullOr(Schema.String),
   products: Schema.optional(Schema.Array(Product)),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   time_zone: Schema.NullOr(Schema.String),
   updated_date: Schema.String,
 }) {}

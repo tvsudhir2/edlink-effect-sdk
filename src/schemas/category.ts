@@ -14,7 +14,7 @@ export class Category extends Schema.Class<Category>("Category")({
   drop_lowest: Schema.Number,
   identifiers: Schema.Array(Identifier),
   position: Schema.Number,
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   title: Schema.String,
   updated_date: Schema.String,
   weight: Schema.Number,

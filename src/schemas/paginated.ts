@@ -22,7 +22,7 @@ import { Submission } from "./submission.js";
  * Build a paginated-response schema for any item type.
  * Edlink returns `{ $data: T[], $next: string | null }`.
  */
-export const PaginatedResponseSchema = <A, I, R>(itemSchema: Schema.Schema<A, I, R>) =>
+export const PaginatedResponseSchema = <A>(itemSchema: Schema.Decoder<A>) =>
   Schema.Struct({
     $data: Schema.Array(itemSchema),
     $next: Schema.optional(Schema.NullOr(Schema.String)),

@@ -5,8 +5,8 @@
  * Grouped by error scenario so each test covers all five code paths at once
  * (fetchOne, updateOne, exchangeCode, refreshToken, fetchMyProfile).
  */
-import { HttpClient, HttpClientResponse } from "@effect/platform";
-import { Effect, Secret } from "effect";
+import { HttpClient, HttpClientResponse } from "effect/unstable/http";
+import { Effect, Redacted } from "effect";
 import { describe, expect, it } from "vitest";
 import { fetchAgent } from "../src/api/v2/agents.js";
 import { updateAssignment } from "../src/api/v2/assignments.js";
@@ -23,7 +23,7 @@ import { makeCtx } from "./helpers/test-config.js";
 
 const userConfig: EdlinkUserConfigData = {
   clientId: "test-client-id",
-  clientSecret: Secret.fromString("test-client-secret"),
+  clientSecret: Redacted.make("test-client-secret"),
   redirectUri: "http://localhost:3000/callback",
   apiBaseUrl: "https://test.edlink.api",
 };

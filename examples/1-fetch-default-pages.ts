@@ -9,7 +9,7 @@
  */
 
 import { NodeRuntime } from "@effect/platform-node";
-import { Chunk, Duration, Effect, Stream } from "effect";
+import { Duration, Effect, Stream } from "effect";
 import { EdlinkClient } from "../src/client.js";
 import { EdlinkLive } from "../src/layers.js";
 
@@ -18,7 +18,7 @@ const program = Effect.gen(function* () {
 
   const client = yield* EdlinkClient;
 
-  const classes = yield* client.classes.list().pipe(Stream.runCollect, Effect.map(Chunk.toArray));
+  const classes = yield* client.classes.list().pipe(Stream.runCollect);
 
   yield* Effect.log(`Fetched ${classes.length} classes`);
 

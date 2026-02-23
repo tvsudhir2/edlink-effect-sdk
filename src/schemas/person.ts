@@ -29,7 +29,7 @@ export class Person extends Schema.Class<Person>("Person")({
   phone: Schema.NullOr(Schema.String),
   picture_url: Schema.NullOr(Schema.String),
   products: Schema.optional(Schema.Array(Product)),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   roles: Schema.Array(Role),
   time_zone: Schema.NullOr(Schema.String),
   updated_date: Schema.String,

@@ -14,7 +14,7 @@ export class Agent extends Schema.Class<Agent>("Agent")({
   // --- Other fields ---
   created_date: Schema.String,
   identifiers: Schema.Array(Identifier),
-  properties: Schema.Record({ key: Schema.String, value: Schema.Unknown }),
+  properties: Schema.Record(Schema.String, Schema.Unknown),
   relationship: AgentRelationship,
   updated_date: Schema.String,
 }) {}
