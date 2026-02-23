@@ -29,12 +29,12 @@ import { EdlinkClient, EdlinkLive } from "@flowpure/edlink-effect-sdk";
 const program = Effect.gen(function* () {
   const client = yield* EdlinkClient;
 
-  // Fetch up to 3 pages of events (default)
-  const events = yield* client.events
+  // Fetch up to 3 pages of classes (default)
+  const classes = yield* client.classes
     .list()
     .pipe(Stream.runCollect, Effect.map(Chunk.toArray));
 
-  console.log(`Fetched ${events.length} events`);
+  console.log(`Fetched ${classes.length} classes`);
 });
 
 program.pipe(Effect.provide(EdlinkLive), NodeRuntime.runMain);
@@ -152,8 +152,8 @@ const schools = yield* client.schools
 Best for large datasets. Each item is processed and discarded — memory stays flat.
 
 ```ts
-yield* Stream.runForEach(client.events.list(), (event) =>
-  Effect.log(`${event.type}: ${event.id}`)
+yield* Stream.runForEach(client.classes.list(), (cls) =>
+  Effect.log(`${cls.id}: ${cls.name}`)
 );
 ```
 
@@ -195,7 +195,7 @@ Stops after `N` pages. **Default is 3 pages** if no config is provided (controll
 ### 2. Cap by Record Count
 
 ```ts
-client.events.list({ type: "records", maxRecords: 50 })
+client.classes.list({ type: "records", maxRecords: 50 })
 ```
 
 Stops at exactly `N` records — the SDK trims the last page if it would overshoot. Good for pagination UIs and batch processing with predictable output sizes.
@@ -232,37 +232,39 @@ cd edlink-effect-sdk && pnpm install
 
 cp .env.example .env.local
 # Edit .env.local → set EDLINK_CLIENT_SECRET
-# For examples 4–7, also set CLASS_ID
-# For examples 6–7, also set ASSIGNMENT_ID
+# For examples 5–8, also set CLASS_ID
+# For examples 7–8, also set ASSIGNMENT_ID
 ```
 
 ### Fetching Data (Examples 1–3)
 
 | # | Run | What It Does | Best For | Limitations |
 |---|---|---|---|---|
-| **1** | `pnpm ex-1` | Fetch events with default 3-page limit; collects to an array | First-time setup, quick sanity check that your credentials work | Loads all items into memory; uses default pagination only |
-| **2** | `pnpm ex-2` | Fetch exactly 50 events using `{ type: "records", maxRecords: 50 }` | Batch processing, pagination UIs, predictable output sizes | Still collects everything in memory |
-| **3** | `pnpm ex-3` | Process events one-by-one via `Stream.runForEach` with a `Ref` counter | Large datasets, ETL pipelines, memory-constrained environments | Slightly more complex code; still uses default 3-page limit (pass `{ type: "all" }` for unlimited streaming) |
+| **1** | `pnpm ex-1` | Fetch classes with default 3-page limit; collects to an array | First-time setup, quick sanity check that your credentials work | Loads all items into memory; uses default pagination only |
+| **2** | `pnpm ex-2` | Fetch exactly 50 classes using `{ type: "records", maxRecords: 50 }` | Batch processing, pagination UIs, predictable output sizes | Still collects everything in memory |
+| **3** | `pnpm ex-3` | Process classes one-by-one via `Stream.runForEach` with a plain `let` counter | Large datasets, ETL pipelines, memory-constrained environments | Slightly more complex code; still uses default 3-page limit (pass `{ type: "all" }` for unlimited streaming) |
+| **4** | `pnpm ex-4` | Process classes concurrently via `Stream.mapEffect` with a `Ref` counter | High-throughput pipelines, enriching records via external API calls | Requires `Ref` for atomic counting across concurrent fibers |
 
-**Choosing between 1 / 2 / 3:**
+**Choosing between 1 / 2 / 3 / 4:**
 - Need a quick array of items? → **Example 1**
 - Need a specific number of records? → **Example 2**
-- Need to process a large dataset without loading everything into memory? → **Example 3**
+- Need to process a large dataset sequentially without loading everything into memory? → **Example 3**
+- Need maximum throughput by processing many items concurrently? → **Example 4**
 
 ### CRUD Operations (Examples 4–7)
 
 | # | Run | What It Does | Best For | Limitations |
 |---|---|---|---|---|
-| **4** | `pnpm ex-4` | List assignments for a class using `client.assignments.list(classId)` | Viewing class assignments, reading nested/scoped resources | Requires `CLASS_ID` env var; collects all results into memory |
-| **5** | `pnpm ex-5` | Create a new assignment with a full request body (title, points, due date, etc.) | LMS integrations that create homework/quizzes programmatically | The request body is passed as a plain object — see the example for all available fields |
-| **6** | `pnpm ex-6` | Fetch-then-update pattern: reads an assignment, patches its title/points/due date | Extending deadlines, adjusting point values, partial updates | Requires both `CLASS_ID` and `ASSIGNMENT_ID`; two sequential API calls |
-| **7** | `pnpm ex-7` | Verify-then-delete pattern: fetches an assignment to confirm it exists, then deletes it | Cleaning up drafts or cancelled assignments | Requires both `CLASS_ID` and `ASSIGNMENT_ID`; no undo — deletion is permanent |
+| **5** | `pnpm ex-5` | List assignments for a class using `client.assignments.list(classId)` | Viewing class assignments, reading nested/scoped resources | Requires `CLASS_ID` env var; collects all results into memory |
+| **6** | `pnpm ex-6` | Create a new assignment with a full request body (title, points, due date, etc.) | LMS integrations that create homework/quizzes programmatically | The request body is passed as a plain object — see the example for all available fields |
+| **7** | `pnpm ex-7` | Fetch-then-update pattern: reads an assignment, patches its title/points/due date | Extending deadlines, adjusting point values, partial updates | Requires both `CLASS_ID` and `ASSIGNMENT_ID`; two sequential API calls |
+| **8** | `pnpm ex-8` | Verify-then-delete pattern: fetches an assignment to confirm it exists, then deletes it | Cleaning up drafts or cancelled assignments | Requires both `CLASS_ID` and `ASSIGNMENT_ID`; no undo — deletion is permanent |
 
-**Choosing between 4 / 5 / 6 / 7:**
-- Need to read entities scoped to a parent? → **Example 4**
-- Need to create a new resource? → **Example 5**
-- Need to partially update a resource? → **Example 6**
-- Need to delete a resource? → **Example 7**
+**Choosing between 5 / 6 / 7 / 8:**
+- Need to read entities scoped to a parent? → **Example 5**
+- Need to create a new resource? → **Example 6**
+- Need to partially update a resource? → **Example 7**
+- Need to delete a resource? → **Example 8**
 
 ### What the Examples Don't Cover
 
