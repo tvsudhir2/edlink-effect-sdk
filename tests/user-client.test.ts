@@ -1,5 +1,5 @@
-import { HttpClient } from "effect/unstable/http";
 import { Effect, Layer, Option, Redacted } from "effect";
+import { HttpClient } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
 import type { EdlinkUserConfigData } from "../src/config.js";
 import { EdlinkUserConfig } from "../src/config.js";

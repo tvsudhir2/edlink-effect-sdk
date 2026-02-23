@@ -49,9 +49,7 @@ describe("listEvents", () => {
       calls++;
       return calls === 1 ? page([eventFixture], `${BASE}/next?cursor=p2`) : page([eventFixture2]);
     };
-    const multiItems = await collect(
-      listEvents({ pagination: { type: "all" } }, makeCtx(makeTestHttpClient(multi))),
-    );
+    const multiItems = await collect(listEvents({ pagination: { type: "all" } }, makeCtx(makeTestHttpClient(multi))));
     expect(multiItems).toHaveLength(2);
     expect(calls).toBe(2);
   });

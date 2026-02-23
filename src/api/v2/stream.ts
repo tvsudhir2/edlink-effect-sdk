@@ -1,5 +1,5 @@
-import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { Effect, Option, Redacted, Schema, Stream } from "effect";
+import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
 import {
   deriveNextUrl,

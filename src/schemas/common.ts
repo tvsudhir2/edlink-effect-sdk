@@ -160,7 +160,14 @@ export const AttachmentType = Schema.Literals(["text", "link", "file", "drive", 
 export type AttachmentType = typeof AttachmentType.Type;
 
 // --- ProductState ---
-export const ProductState = Schema.Literals(["active", "inactive", "upcoming", "development", "sunsetting", "deprecated"]);
+export const ProductState = Schema.Literals([
+  "active",
+  "inactive",
+  "upcoming",
+  "development",
+  "sunsetting",
+  "deprecated",
+]);
 export type ProductState = typeof ProductState.Type;
 
 // ---------------------------------------------------------------------------

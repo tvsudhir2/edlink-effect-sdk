@@ -1,5 +1,5 @@
-import { FetchHttpClient } from "effect/unstable/http";
 import { Layer } from "effect";
+import { FetchHttpClient } from "effect/unstable/http";
 import { EdlinkClientLive } from "./client.js";
 import { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 import { InMemoryTokenStoreLive } from "./token-store.js";

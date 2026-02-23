@@ -31,7 +31,7 @@ const processClass = Effect.fn("processClass")((cls: EdlinkClass, countRef: Ref.
     if (count === 1 || count % 10 === 0) {
       yield* Effect.log(`  #${count}  id=${cls.id}  name=${cls.name ?? "(unnamed)"}`);
     }
-  })
+  }),
 );
 
 const CONCURRENCY = 10;

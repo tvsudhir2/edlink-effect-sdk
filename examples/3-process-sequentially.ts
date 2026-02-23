@@ -35,9 +35,7 @@ const program = Effect.gen(function* () {
   // touches this variable at a time. No atomic update needed (contrast: Example 4).
   let count = 0;
 
-  yield* client.classes.list().pipe(
-    Stream.runForEach((cls) => processClass(cls, ++count)),
-  );
+  yield* client.classes.list().pipe(Stream.runForEach((cls) => processClass(cls, ++count)));
 
   yield* Effect.log(`Processed ${count} classes sequentially`);
 }).pipe(Effect.provide(EdlinkLive));

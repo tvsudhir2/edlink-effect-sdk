@@ -22,7 +22,9 @@ const program = Effect.gen(function* () {
 
   yield* Effect.log(`Fetched ${classes.length} classes`);
 
-  yield* Effect.forEach(classes.slice(0, 3), (cls, idx) => Effect.log(`  ${idx + 1}. id=${cls.id}  name=${cls.name ?? "(unnamed)"}`));
+  yield* Effect.forEach(classes.slice(0, 3), (cls, idx) =>
+    Effect.log(`  ${idx + 1}. id=${cls.id}  name=${cls.name ?? "(unnamed)"}`),
+  );
 }).pipe(Effect.provide(EdlinkLive), Effect.timeout(Duration.seconds(12)));
 
 NodeRuntime.runMain(program);

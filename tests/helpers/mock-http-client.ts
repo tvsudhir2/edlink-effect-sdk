@@ -1,5 +1,5 @@
-import { HttpClient, type HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 import { Effect } from "effect";
+import { HttpClient, type HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 
 // ---------------------------------------------------------------------------
 // Mock HTTP client — the ONLY mock in the test suite
