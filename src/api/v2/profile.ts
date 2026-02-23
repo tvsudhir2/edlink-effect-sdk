@@ -8,9 +8,9 @@ import type { UserRequestContext } from "./oauth.js";
 // User profile response schema
 // ---------------------------------------------------------------------------
 
-const ProfileResponseSchema = Schema.Struct({
+class ProfileResponse extends Schema.Class<ProfileResponse>("EdlinkProfileResponse")({
   $data: UserProfile,
-});
+}) {}
 
 // ---------------------------------------------------------------------------
 // Fetch authenticated user's profile
@@ -26,7 +26,7 @@ export const fetchMyProfile = (
   ctx: UserRequestContext,
 ): Effect.Effect<UserProfile, EdlinkApiError | EdlinkDecodeError> => {
   const client = ctx.httpClient.pipe(HttpClient.filterStatusOk);
-  const decode = Schema.decodeUnknownEffect(ProfileResponseSchema);
+  const decode = Schema.decodeUnknownEffect(ProfileResponse);
 
   return Effect.gen(function* () {
     const url = `${ctx.config.apiBaseUrl}/v2/my/profile`;

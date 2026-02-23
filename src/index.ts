@@ -5,8 +5,41 @@
 export type { AuthorizationUrlOptions, UserRequestContext } from "./api/v2/oauth.js";
 // API helpers — request context types
 export type { EndpointOptions, RequestContext } from "./api/v2/request.js";
-// Client service & layer
-export { EdlinkClient, EdlinkClientLive } from "./client.js";
+export type {
+  AgentsServiceType,
+  AssignmentsServiceType,
+  CategoriesServiceType,
+  ClassesServiceType,
+  CoursesServiceType,
+  DistrictsServiceType,
+  EnrollmentsServiceType,
+  EventsServiceType,
+  LicensesServiceType,
+  PeopleServiceType,
+  SchoolsServiceType,
+  SectionsServiceType,
+  SessionsServiceType,
+  SubmissionsServiceType,
+} from "./client.js";
+// Client service & layer — aggregate facade + individual sub-service classes
+export {
+  AgentsService,
+  AssignmentsService,
+  CategoriesService,
+  ClassesService,
+  CoursesService,
+  DistrictsService,
+  EdlinkClient,
+  EdlinkClientLive,
+  EnrollmentsService,
+  EventsService,
+  LicensesService,
+  PeopleService,
+  SchoolsService,
+  SectionsService,
+  SessionsService,
+  SubmissionsService,
+} from "./client.js";
 export type { EdlinkConfigData, EdlinkUserConfigData } from "./config.js";
 export { EdlinkConfig, EdlinkUserConfig } from "./config.js";
 // Errors

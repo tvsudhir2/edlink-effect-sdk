@@ -55,9 +55,9 @@ export const buildAuthorizationUrl = (options: AuthorizationUrlOptions, config: 
 // Token response schema wrapper
 // ---------------------------------------------------------------------------
 
-const TokenResponseWrapper = Schema.Struct({
+class TokenResponseWrapper extends Schema.Class<TokenResponseWrapper>("EdlinkTokenResponseWrapper")({
   $data: TokenResponse,
-});
+}) {}
 
 // ---------------------------------------------------------------------------
 // Exchange authorization code for tokens

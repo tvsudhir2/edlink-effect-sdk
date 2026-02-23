@@ -40,16 +40,34 @@ import type { Submission } from "./schemas/submission.js";
 type ApiErrors = EdlinkApiError | EdlinkDecodeError;
 
 // ---------------------------------------------------------------------------
-// Sub-service interfaces — grouped by entity
+// Shared context builder — reused by every sub-service Live layer
 // ---------------------------------------------------------------------------
 
-interface DistrictsService {
+const makeCtx = Effect.gen(function* () {
+  const edlinkConfig = yield* EdlinkConfig;
+  const httpClient = yield* HttpClient.HttpClient;
+  const ctx: RequestContext = { config: edlinkConfig, httpClient };
+  const defaultPagination: PaginationConfig = { type: "pages", maxPages: edlinkConfig.defaultMaxPages };
+  const pg = (p?: PaginationConfig): PaginationConfig => p ?? defaultPagination;
+  return { ctx, pg } as const;
+});
+
+// ---------------------------------------------------------------------------
+// Service value types — exported so callers can annotate variables/params
+// ---------------------------------------------------------------------------
+
+export type EventsServiceType = {
+  readonly list: (config?: PaginationConfig) => Stream.Stream<EdlinkEvent, ApiErrors>;
+  readonly fetch: (id: string) => Effect.Effect<EdlinkEvent, ApiErrors>;
+};
+
+export type DistrictsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<District, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<District, ApiErrors>;
   readonly listAdministrators: (districtId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
-}
+};
 
-interface SchoolsService {
+export type SchoolsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<School, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<School, ApiErrors>;
   readonly listClasses: (schoolId: string, config?: PaginationConfig) => Stream.Stream<EdlinkClass, ApiErrors>;
@@ -59,29 +77,29 @@ interface SchoolsService {
   readonly listAdministrators: (schoolId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listTeachers: (schoolId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listStudents: (schoolId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
-}
+};
 
-interface CoursesService {
+export type CoursesServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Course, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Course, ApiErrors>;
   readonly listClasses: (courseId: string, config?: PaginationConfig) => Stream.Stream<EdlinkClass, ApiErrors>;
-}
+};
 
-interface SessionsService {
+export type SessionsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Session, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Session, ApiErrors>;
-}
+};
 
-interface SectionsService {
+export type SectionsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Section, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Section, ApiErrors>;
   readonly listEnrollments: (sectionId: string, config?: PaginationConfig) => Stream.Stream<Enrollment, ApiErrors>;
   readonly listPeople: (sectionId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listTeachers: (sectionId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listStudents: (sectionId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
-}
+};
 
-interface ClassesService {
+export type ClassesServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<EdlinkClass, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<EdlinkClass, ApiErrors>;
   readonly listSections: (classId: string, config?: PaginationConfig) => Stream.Stream<Section, ApiErrors>;
@@ -89,9 +107,9 @@ interface ClassesService {
   readonly listPeople: (classId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listTeachers: (classId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly listStudents: (classId: string, config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
-}
+};
 
-interface PeopleService {
+export type PeopleServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Person, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Person, ApiErrors>;
   readonly listEnrollments: (personId: string, config?: PaginationConfig) => Stream.Stream<Enrollment, ApiErrors>;
@@ -100,44 +118,39 @@ interface PeopleService {
   readonly listClasses: (personId: string, config?: PaginationConfig) => Stream.Stream<EdlinkClass, ApiErrors>;
   readonly listSections: (personId: string, config?: PaginationConfig) => Stream.Stream<Section, ApiErrors>;
   readonly listAgents: (personId: string, config?: PaginationConfig) => Stream.Stream<Agent, ApiErrors>;
-}
+};
 
-interface EnrollmentsService {
+export type EnrollmentsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Enrollment, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Enrollment, ApiErrors>;
-}
+};
 
-interface AgentsService {
+export type AgentsServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<Agent, ApiErrors>;
   readonly fetch: (id: string) => Effect.Effect<Agent, ApiErrors>;
-}
+};
 
-interface LicensesService {
+export type LicensesServiceType = {
   readonly list: (config?: PaginationConfig) => Stream.Stream<License, ApiErrors>;
-}
+};
 
-interface EventsService {
-  readonly list: (config?: PaginationConfig) => Stream.Stream<EdlinkEvent, ApiErrors>;
-  readonly fetch: (id: string) => Effect.Effect<EdlinkEvent, ApiErrors>;
-}
-
-interface AssignmentsService {
+export type AssignmentsServiceType = {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Assignment, ApiErrors>;
   readonly fetch: (classId: string, assignmentId: string) => Effect.Effect<Assignment, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Assignment, ApiErrors>;
   readonly update: (options: AssignmentsApi.UpdateAssignmentOptions) => Effect.Effect<Assignment, ApiErrors>;
   readonly delete: (classId: string, assignmentId: string) => Effect.Effect<void, EdlinkApiError>;
-}
+};
 
-interface CategoriesService {
+export type CategoriesServiceType = {
   readonly list: (classId: string, config?: PaginationConfig) => Stream.Stream<Category, ApiErrors>;
   readonly fetch: (classId: string, categoryId: string) => Effect.Effect<Category, ApiErrors>;
   readonly create: (classId: string, body: Record<string, unknown>) => Effect.Effect<Category, ApiErrors>;
   readonly update: (options: CategoriesApi.UpdateCategoryOptions) => Effect.Effect<Category, ApiErrors>;
   readonly delete: (classId: string, categoryId: string) => Effect.Effect<void, EdlinkApiError>;
-}
+};
 
-interface SubmissionsService {
+export type SubmissionsServiceType = {
   readonly list: (
     classId: string,
     assignmentId: string,
@@ -148,199 +161,416 @@ interface SubmissionsService {
   readonly reclaim: (classId: string, assignmentId: string) => Effect.Effect<Submission, ApiErrors>;
   readonly return: (options: SubmissionsApi.ReturnSubmissionOptions) => Effect.Effect<Submission, ApiErrors>;
   readonly update: (options: SubmissionsApi.UpdateSubmissionOptions) => Effect.Effect<Submission, ApiErrors>;
+};
+
+// ---------------------------------------------------------------------------
+// Sub-service classes — each is an independently injectable Effect service
+// ---------------------------------------------------------------------------
+
+/**
+ * Edlink Events sub-service.
+ * Yields directly: `const events = yield* EventsService`
+ */
+export class EventsService extends ServiceMap.Service<EventsService, EventsServiceType>()("EdlinkEventsService") {
+  static readonly Live: Layer.Layer<EventsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    EventsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => EventsApi.listEvents({ pagination: pg(p) }, ctx),
+        fetch: (id) => EventsApi.fetchEvent({ eventId: id }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Districts sub-service.
+ * Yields directly: `const districts = yield* DistrictsService`
+ */
+export class DistrictsService extends ServiceMap.Service<DistrictsService, DistrictsServiceType>()(
+  "EdlinkDistrictsService",
+) {
+  static readonly Live: Layer.Layer<DistrictsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    DistrictsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => DistrictsApi.listDistricts(pg(p), ctx),
+        fetch: (id) => DistrictsApi.fetchDistrict(id, ctx),
+        listAdministrators: (districtId, p?) =>
+          DistrictsApi.listDistrictAdministrators({ districtId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Schools sub-service.
+ * Yields directly: `const schools = yield* SchoolsService`
+ */
+export class SchoolsService extends ServiceMap.Service<SchoolsService, SchoolsServiceType>()("EdlinkSchoolsService") {
+  static readonly Live: Layer.Layer<SchoolsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    SchoolsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => SchoolsApi.listSchools(pg(p), ctx),
+        fetch: (id) => SchoolsApi.fetchSchool(id, ctx),
+        listClasses: (schoolId, p?) => SchoolsApi.listSchoolClasses({ schoolId, pagination: pg(p) }, ctx),
+        listCourses: (schoolId, p?) => SchoolsApi.listSchoolCourses({ schoolId, pagination: pg(p) }, ctx),
+        listSessions: (schoolId, p?) => SchoolsApi.listSchoolSessions({ schoolId, pagination: pg(p) }, ctx),
+        listPeople: (schoolId, p?) => SchoolsApi.listSchoolPeople({ schoolId, pagination: pg(p) }, ctx),
+        listAdministrators: (schoolId, p?) => SchoolsApi.listSchoolAdministrators({ schoolId, pagination: pg(p) }, ctx),
+        listTeachers: (schoolId, p?) => SchoolsApi.listSchoolTeachers({ schoolId, pagination: pg(p) }, ctx),
+        listStudents: (schoolId, p?) => SchoolsApi.listSchoolStudents({ schoolId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Courses sub-service.
+ * Yields directly: `const courses = yield* CoursesService`
+ */
+export class CoursesService extends ServiceMap.Service<CoursesService, CoursesServiceType>()("EdlinkCoursesService") {
+  static readonly Live: Layer.Layer<CoursesService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    CoursesService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => CoursesApi.listCourses(pg(p), ctx),
+        fetch: (id) => CoursesApi.fetchCourse(id, ctx),
+        listClasses: (courseId, p?) => CoursesApi.listCourseClasses({ courseId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Sessions sub-service.
+ * Yields directly: `const sessions = yield* SessionsService`
+ */
+export class SessionsService extends ServiceMap.Service<SessionsService, SessionsServiceType>()(
+  "EdlinkSessionsService",
+) {
+  static readonly Live: Layer.Layer<SessionsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    SessionsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => SessionsApi.listSessions(pg(p), ctx),
+        fetch: (id) => SessionsApi.fetchSession(id, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Sections sub-service.
+ * Yields directly: `const sections = yield* SectionsService`
+ */
+export class SectionsService extends ServiceMap.Service<SectionsService, SectionsServiceType>()(
+  "EdlinkSectionsService",
+) {
+  static readonly Live: Layer.Layer<SectionsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    SectionsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => SectionsApi.listSections(pg(p), ctx),
+        fetch: (id) => SectionsApi.fetchSection(id, ctx),
+        listEnrollments: (sectionId, p?) => SectionsApi.listSectionEnrollments({ sectionId, pagination: pg(p) }, ctx),
+        listPeople: (sectionId, p?) => SectionsApi.listSectionPeople({ sectionId, pagination: pg(p) }, ctx),
+        listTeachers: (sectionId, p?) => SectionsApi.listSectionTeachers({ sectionId, pagination: pg(p) }, ctx),
+        listStudents: (sectionId, p?) => SectionsApi.listSectionStudents({ sectionId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Classes sub-service.
+ * Yields directly: `const classes = yield* ClassesService`
+ */
+export class ClassesService extends ServiceMap.Service<ClassesService, ClassesServiceType>()("EdlinkClassesService") {
+  static readonly Live: Layer.Layer<ClassesService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    ClassesService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => ClassesApi.listClasses(pg(p), ctx),
+        fetch: (id) => ClassesApi.fetchClass(id, ctx),
+        listSections: (classId, p?) => ClassesApi.listClassSections({ classId, pagination: pg(p) }, ctx),
+        listEnrollments: (classId, p?) => ClassesApi.listClassEnrollments({ classId, pagination: pg(p) }, ctx),
+        listPeople: (classId, p?) => ClassesApi.listClassPeople({ classId, pagination: pg(p) }, ctx),
+        listTeachers: (classId, p?) => ClassesApi.listClassTeachers({ classId, pagination: pg(p) }, ctx),
+        listStudents: (classId, p?) => ClassesApi.listClassStudents({ classId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink People sub-service.
+ * Yields directly: `const people = yield* PeopleService`
+ */
+export class PeopleService extends ServiceMap.Service<PeopleService, PeopleServiceType>()("EdlinkPeopleService") {
+  static readonly Live: Layer.Layer<PeopleService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    PeopleService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => PeopleApi.listPeople(pg(p), ctx),
+        fetch: (id) => PeopleApi.fetchPerson(id, ctx),
+        listEnrollments: (personId, p?) => PeopleApi.listPersonEnrollments({ personId, pagination: pg(p) }, ctx),
+        listDistricts: (personId, p?) => PeopleApi.listPersonDistricts({ personId, pagination: pg(p) }, ctx),
+        listSchools: (personId, p?) => PeopleApi.listPersonSchools({ personId, pagination: pg(p) }, ctx),
+        listClasses: (personId, p?) => PeopleApi.listPersonClasses({ personId, pagination: pg(p) }, ctx),
+        listSections: (personId, p?) => PeopleApi.listPersonSections({ personId, pagination: pg(p) }, ctx),
+        listAgents: (personId, p?) => PeopleApi.listPersonAgents({ personId, pagination: pg(p) }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Enrollments sub-service.
+ * Yields directly: `const enrollments = yield* EnrollmentsService`
+ */
+export class EnrollmentsService extends ServiceMap.Service<EnrollmentsService, EnrollmentsServiceType>()(
+  "EdlinkEnrollmentsService",
+) {
+  static readonly Live: Layer.Layer<EnrollmentsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    EnrollmentsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => EnrollmentsApi.listEnrollments(pg(p), ctx),
+        fetch: (id) => EnrollmentsApi.fetchEnrollment(id, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Agents sub-service.
+ * Yields directly: `const agents = yield* AgentsService`
+ */
+export class AgentsService extends ServiceMap.Service<AgentsService, AgentsServiceType>()("EdlinkAgentsService") {
+  static readonly Live: Layer.Layer<AgentsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    AgentsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => AgentsApi.listAgents(pg(p), ctx),
+        fetch: (id) => AgentsApi.fetchAgent(id, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Licenses sub-service.
+ * Yields directly: `const licenses = yield* LicensesService`
+ */
+export class LicensesService extends ServiceMap.Service<LicensesService, LicensesServiceType>()(
+  "EdlinkLicensesService",
+) {
+  static readonly Live: Layer.Layer<LicensesService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    LicensesService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (p?) => LicensesApi.listLicenses(pg(p), ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Assignments sub-service.
+ * Yields directly: `const assignments = yield* AssignmentsService`
+ */
+export class AssignmentsService extends ServiceMap.Service<AssignmentsService, AssignmentsServiceType>()(
+  "EdlinkAssignmentsService",
+) {
+  static readonly Live: Layer.Layer<AssignmentsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    AssignmentsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (classId, p?) => AssignmentsApi.listAssignments({ classId, pagination: pg(p) }, ctx),
+        fetch: (classId, assignmentId) => AssignmentsApi.fetchAssignment({ classId, assignmentId }, ctx),
+        create: (classId, body) => AssignmentsApi.createAssignment({ classId, body }, ctx),
+        update: (options) => AssignmentsApi.updateAssignment(options, ctx),
+        delete: (classId, assignmentId) => AssignmentsApi.deleteAssignment({ classId, assignmentId }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Categories sub-service.
+ * Yields directly: `const categories = yield* CategoriesService`
+ */
+export class CategoriesService extends ServiceMap.Service<CategoriesService, CategoriesServiceType>()(
+  "EdlinkCategoriesService",
+) {
+  static readonly Live: Layer.Layer<CategoriesService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    CategoriesService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (classId, p?) => CategoriesApi.listCategories({ classId, pagination: pg(p) }, ctx),
+        fetch: (classId, categoryId) => CategoriesApi.fetchCategory({ classId, categoryId }, ctx),
+        create: (classId, body) => CategoriesApi.createCategory({ classId, body }, ctx),
+        update: (options) => CategoriesApi.updateCategory(options, ctx),
+        delete: (classId, categoryId) => CategoriesApi.deleteCategory({ classId, categoryId }, ctx),
+      };
+    }),
+  );
+}
+
+/**
+ * Edlink Submissions sub-service.
+ * Yields directly: `const submissions = yield* SubmissionsService`
+ */
+export class SubmissionsService extends ServiceMap.Service<SubmissionsService, SubmissionsServiceType>()(
+  "EdlinkSubmissionsService",
+) {
+  static readonly Live: Layer.Layer<SubmissionsService, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
+    SubmissionsService,
+    Effect.gen(function* () {
+      const { ctx, pg } = yield* makeCtx;
+      return {
+        list: (classId, assignmentId, p?) =>
+          SubmissionsApi.listSubmissions({ classId, assignmentId, pagination: pg(p) }, ctx),
+        fetch: (options) => SubmissionsApi.fetchSubmission(options, ctx),
+        submit: (options) => SubmissionsApi.submitAttempt(options, ctx),
+        reclaim: (classId, assignmentId) => SubmissionsApi.reclaimSubmission({ classId, assignmentId }, ctx),
+        return: (options) => SubmissionsApi.returnSubmission(options, ctx),
+        update: (options) => SubmissionsApi.updateSubmission(options, ctx),
+      };
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------
-// Service interface
+// Aggregate client — provides all sub-services under a single tag
 // ---------------------------------------------------------------------------
+
+/** All sub-service Live layers merged — shared by EdlinkClientLive */
+const AllSubServiceLives = Layer.mergeAll(
+  EventsService.Live,
+  DistrictsService.Live,
+  SchoolsService.Live,
+  CoursesService.Live,
+  SessionsService.Live,
+  SectionsService.Live,
+  ClassesService.Live,
+  PeopleService.Live,
+  EnrollmentsService.Live,
+  AgentsService.Live,
+  LicensesService.Live,
+  AssignmentsService.Live,
+  CategoriesService.Live,
+  SubmissionsService.Live,
+);
 
 /**
  * Edlink API Client — full Graph API coverage.
  *
- * Each entity group is accessible via a namespaced sub-service:
- *   client.districts.list()
- *   client.schools.fetch(id)
- *   client.assignments.create(classId, body)
+ * **Preferred usage** — yield individual sub-services directly:
+ * ```ts
+ * const districts = yield* DistrictsService
+ * const classes   = yield* ClassesService
+ * ```
+ *
+ * **Legacy usage** — aggregate facade still supported:
+ * ```ts
+ * const client = yield* EdlinkClient
+ * client.districts.list()
+ * ```
  */
 export class EdlinkClient extends ServiceMap.Service<
   EdlinkClient,
   {
-    readonly events: EventsService;
-    readonly districts: DistrictsService;
-    readonly schools: SchoolsService;
-    readonly courses: CoursesService;
-    readonly sessions: SessionsService;
-    readonly sections: SectionsService;
-    readonly classes: ClassesService;
-    readonly people: PeopleService;
-    readonly enrollments: EnrollmentsService;
-    readonly agents: AgentsService;
-    readonly licenses: LicensesService;
-    readonly assignments: AssignmentsService;
-    readonly categories: CategoriesService;
-    readonly submissions: SubmissionsService;
+    readonly events: EventsServiceType;
+    readonly districts: DistrictsServiceType;
+    readonly schools: SchoolsServiceType;
+    readonly courses: CoursesServiceType;
+    readonly sessions: SessionsServiceType;
+    readonly sections: SectionsServiceType;
+    readonly classes: ClassesServiceType;
+    readonly people: PeopleServiceType;
+    readonly enrollments: EnrollmentsServiceType;
+    readonly agents: AgentsServiceType;
+    readonly licenses: LicensesServiceType;
+    readonly assignments: AssignmentsServiceType;
+    readonly categories: CategoriesServiceType;
+    readonly submissions: SubmissionsServiceType;
   }
 >()("EdlinkClient") {}
 
 // ---------------------------------------------------------------------------
-// Construction
+// Construction & layer
 // ---------------------------------------------------------------------------
 
 const makeEdlinkClient = Effect.gen(function* () {
-  const edlinkConfig = yield* EdlinkConfig;
-  const httpClient = yield* HttpClient.HttpClient;
-
-  const ctx: RequestContext = { config: edlinkConfig, httpClient };
-
-  const defaultPagination: PaginationConfig = {
-    type: "pages",
-    maxPages: edlinkConfig.defaultMaxPages,
-  };
-
-  const pg = (p?: PaginationConfig) => p ?? defaultPagination;
+  const events = yield* EventsService;
+  const districts = yield* DistrictsService;
+  const schools = yield* SchoolsService;
+  const courses = yield* CoursesService;
+  const sessions = yield* SessionsService;
+  const sections = yield* SectionsService;
+  const classes = yield* ClassesService;
+  const people = yield* PeopleService;
+  const enrollments = yield* EnrollmentsService;
+  const agents = yield* AgentsService;
+  const licenses = yield* LicensesService;
+  const assignments = yield* AssignmentsService;
+  const categories = yield* CategoriesService;
+  const submissions = yield* SubmissionsService;
 
   return {
-    events: {
-      list: (p?: PaginationConfig) => EventsApi.listEvents({ pagination: pg(p) }, ctx),
-      fetch: (id: string) => EventsApi.fetchEvent({ eventId: id }, ctx),
-    },
-
-    districts: {
-      list: (p?: PaginationConfig) => DistrictsApi.listDistricts(pg(p), ctx),
-      fetch: (id: string) => DistrictsApi.fetchDistrict(id, ctx),
-      listAdministrators: (districtId: string, p?: PaginationConfig) =>
-        DistrictsApi.listDistrictAdministrators({ districtId, pagination: pg(p) }, ctx),
-    },
-
-    schools: {
-      list: (p?: PaginationConfig) => SchoolsApi.listSchools(pg(p), ctx),
-      fetch: (id: string) => SchoolsApi.fetchSchool(id, ctx),
-      listClasses: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolClasses({ schoolId, pagination: pg(p) }, ctx),
-      listCourses: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolCourses({ schoolId, pagination: pg(p) }, ctx),
-      listSessions: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolSessions({ schoolId, pagination: pg(p) }, ctx),
-      listPeople: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolPeople({ schoolId, pagination: pg(p) }, ctx),
-      listAdministrators: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolAdministrators({ schoolId, pagination: pg(p) }, ctx),
-      listTeachers: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolTeachers({ schoolId, pagination: pg(p) }, ctx),
-      listStudents: (schoolId: string, p?: PaginationConfig) =>
-        SchoolsApi.listSchoolStudents({ schoolId, pagination: pg(p) }, ctx),
-    },
-
-    courses: {
-      list: (p?: PaginationConfig) => CoursesApi.listCourses(pg(p), ctx),
-      fetch: (id: string) => CoursesApi.fetchCourse(id, ctx),
-      listClasses: (courseId: string, p?: PaginationConfig) =>
-        CoursesApi.listCourseClasses({ courseId, pagination: pg(p) }, ctx),
-    },
-
-    sessions: {
-      list: (p?: PaginationConfig) => SessionsApi.listSessions(pg(p), ctx),
-      fetch: (id: string) => SessionsApi.fetchSession(id, ctx),
-    },
-
-    sections: {
-      list: (p?: PaginationConfig) => SectionsApi.listSections(pg(p), ctx),
-      fetch: (id: string) => SectionsApi.fetchSection(id, ctx),
-      listEnrollments: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionEnrollments({ sectionId, pagination: pg(p) }, ctx),
-      listPeople: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionPeople({ sectionId, pagination: pg(p) }, ctx),
-      listTeachers: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionTeachers({ sectionId, pagination: pg(p) }, ctx),
-      listStudents: (sectionId: string, p?: PaginationConfig) =>
-        SectionsApi.listSectionStudents({ sectionId, pagination: pg(p) }, ctx),
-    },
-
-    classes: {
-      list: (p?: PaginationConfig) => ClassesApi.listClasses(pg(p), ctx),
-      fetch: (id: string) => ClassesApi.fetchClass(id, ctx),
-      listSections: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassSections({ classId, pagination: pg(p) }, ctx),
-      listEnrollments: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassEnrollments({ classId, pagination: pg(p) }, ctx),
-      listPeople: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassPeople({ classId, pagination: pg(p) }, ctx),
-      listTeachers: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassTeachers({ classId, pagination: pg(p) }, ctx),
-      listStudents: (classId: string, p?: PaginationConfig) =>
-        ClassesApi.listClassStudents({ classId, pagination: pg(p) }, ctx),
-    },
-
-    people: {
-      list: (p?: PaginationConfig) => PeopleApi.listPeople(pg(p), ctx),
-      fetch: (id: string) => PeopleApi.fetchPerson(id, ctx),
-      listEnrollments: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonEnrollments({ personId, pagination: pg(p) }, ctx),
-      listDistricts: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonDistricts({ personId, pagination: pg(p) }, ctx),
-      listSchools: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonSchools({ personId, pagination: pg(p) }, ctx),
-      listClasses: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonClasses({ personId, pagination: pg(p) }, ctx),
-      listSections: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonSections({ personId, pagination: pg(p) }, ctx),
-      listAgents: (personId: string, p?: PaginationConfig) =>
-        PeopleApi.listPersonAgents({ personId, pagination: pg(p) }, ctx),
-    },
-
-    enrollments: {
-      list: (p?: PaginationConfig) => EnrollmentsApi.listEnrollments(pg(p), ctx),
-      fetch: (id: string) => EnrollmentsApi.fetchEnrollment(id, ctx),
-    },
-
-    agents: {
-      list: (p?: PaginationConfig) => AgentsApi.listAgents(pg(p), ctx),
-      fetch: (id: string) => AgentsApi.fetchAgent(id, ctx),
-    },
-
-    licenses: {
-      list: (p?: PaginationConfig) => LicensesApi.listLicenses(pg(p), ctx),
-    },
-
-    assignments: {
-      list: (classId: string, p?: PaginationConfig) =>
-        AssignmentsApi.listAssignments({ classId, pagination: pg(p) }, ctx),
-      fetch: (classId: string, assignmentId: string) => AssignmentsApi.fetchAssignment({ classId, assignmentId }, ctx),
-      create: (classId: string, body: Record<string, unknown>) =>
-        AssignmentsApi.createAssignment({ classId, body }, ctx),
-      update: (options: AssignmentsApi.UpdateAssignmentOptions) => AssignmentsApi.updateAssignment(options, ctx),
-      delete: (classId: string, assignmentId: string) =>
-        AssignmentsApi.deleteAssignment({ classId, assignmentId }, ctx),
-    },
-
-    categories: {
-      list: (classId: string, p?: PaginationConfig) =>
-        CategoriesApi.listCategories({ classId, pagination: pg(p) }, ctx),
-      fetch: (classId: string, categoryId: string) => CategoriesApi.fetchCategory({ classId, categoryId }, ctx),
-      create: (classId: string, body: Record<string, unknown>) => CategoriesApi.createCategory({ classId, body }, ctx),
-      update: (options: CategoriesApi.UpdateCategoryOptions) => CategoriesApi.updateCategory(options, ctx),
-      delete: (classId: string, categoryId: string) => CategoriesApi.deleteCategory({ classId, categoryId }, ctx),
-    },
-
-    submissions: {
-      list: (classId: string, assignmentId: string, p?: PaginationConfig) =>
-        SubmissionsApi.listSubmissions({ classId, assignmentId, pagination: pg(p) }, ctx),
-      fetch: (options: SubmissionsApi.FetchSubmissionOptions) => SubmissionsApi.fetchSubmission(options, ctx),
-      submit: (options: SubmissionsApi.SubmitAttemptOptions) => SubmissionsApi.submitAttempt(options, ctx),
-      reclaim: (classId: string, assignmentId: string) =>
-        SubmissionsApi.reclaimSubmission({ classId, assignmentId }, ctx),
-      return: (options: SubmissionsApi.ReturnSubmissionOptions) => SubmissionsApi.returnSubmission(options, ctx),
-      update: (options: SubmissionsApi.UpdateSubmissionOptions) => SubmissionsApi.updateSubmission(options, ctx),
-    },
+    events,
+    districts,
+    schools,
+    courses,
+    sessions,
+    sections,
+    classes,
+    people,
+    enrollments,
+    agents,
+    licenses,
+    assignments,
+    categories,
+    submissions,
   };
 });
 
-// ---------------------------------------------------------------------------
-// Layer
-// ---------------------------------------------------------------------------
-
-/** Live layer — requires `EdlinkConfig` and `HttpClient` from context */
-export const EdlinkClientLive: Layer.Layer<EdlinkClient, never, EdlinkConfig | HttpClient.HttpClient> = Layer.effect(
-  EdlinkClient,
-  makeEdlinkClient,
-);
+/**
+ * Live layer — provides `EdlinkClient` (aggregate facade) **and** all 14
+ * individual sub-service classes. Requires `EdlinkConfig` + `HttpClient`.
+ */
+export const EdlinkClientLive: Layer.Layer<
+  | EdlinkClient
+  | EventsService
+  | DistrictsService
+  | SchoolsService
+  | CoursesService
+  | SessionsService
+  | SectionsService
+  | ClassesService
+  | PeopleService
+  | EnrollmentsService
+  | AgentsService
+  | LicensesService
+  | AssignmentsService
+  | CategoriesService
+  | SubmissionsService,
+  never,
+  EdlinkConfig | HttpClient.HttpClient
+> = Layer.effect(EdlinkClient, makeEdlinkClient).pipe(Layer.provideMerge(AllSubServiceLives));

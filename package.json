@@ -41,7 +41,7 @@
     "ex-8": "tsx --env-file=.env.local examples/8-delete-assignment.ts",
     "format": "biome format --write .",
     "lint": "biome lint .",
-    "check": "biome check --write ."
+    "lint:fix": "biome check --write ."
   },
   "keywords": [
     "edlink",
