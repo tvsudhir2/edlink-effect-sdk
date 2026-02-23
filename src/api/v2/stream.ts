@@ -18,7 +18,7 @@ import type { EndpointOptions, RequestContext } from "./request.js";
 /**
  * Build a lazy, paginated `Stream` of items from any Edlink v2 endpoint.
  *
- * Pages are fetched on-demand via `Stream.unfoldEffect` — downstream
+ * Pages are fetched on-demand via `Stream.paginate` — downstream
  * back-pressure controls when the next HTTP call is made.
  *
  * Responses are decoded through the provided item schema at the boundary

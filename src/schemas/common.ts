@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
 // ---------------------------------------------------------------------------
-// Enums — modeled as Schema.Literal unions for runtime validation
+// Enums — modeled as Schema.Literals arrays for runtime validation
 // ---------------------------------------------------------------------------
 
 // --- Subject (CEDS + Edlink) ---

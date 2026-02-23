@@ -102,7 +102,7 @@ export const createOne = <A>(
       HttpClientRequest.bodyJson(body),
     );
 
-    // bodyJson returns an Effect, so we need to unwrap
+    // In v4, bodyJson is synchronous and returns HttpClientRequest directly
     const preparedRequest = yield* Effect.isEffect(request)
       ? (request as Effect.Effect<HttpClientRequest.HttpClientRequest, HttpBody.HttpBodyError>).pipe(
           Effect.mapError(
