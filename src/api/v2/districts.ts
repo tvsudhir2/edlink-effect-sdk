@@ -5,8 +5,8 @@ import type { District } from "@/schemas/district.js";
 import { District as DistrictSchema } from "@/schemas/district.js";
 import type { Person } from "@/schemas/person.js";
 import { Person as PersonSchema } from "@/schemas/person.js";
-import { fetchOne, type RequestContext } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/districts";
 

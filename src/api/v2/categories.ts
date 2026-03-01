@@ -3,8 +3,8 @@ import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import type { PaginationConfig } from "@/pagination.js";
 import type { Category } from "@/schemas/category.js";
 import { Category as CategorySchema } from "@/schemas/category.js";
-import { createOne, deleteOne, fetchOne, type RequestContext, updateOne } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import { createOne, deleteOne, fetchOne, type RequestContext, updateOne } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const classCategoriesPath = (classId: string) => `/v2/graph/classes/${classId}/categories`;
 

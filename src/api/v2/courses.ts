@@ -5,8 +5,8 @@ import type { EdlinkClass } from "@/schemas/class.js";
 import { EdlinkClass as ClassSchema } from "@/schemas/class.js";
 import type { Course } from "@/schemas/course.js";
 import { Course as CourseSchema } from "@/schemas/course.js";
-import { fetchOne, type RequestContext } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/courses";
 

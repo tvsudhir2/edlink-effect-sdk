@@ -1,5 +1,5 @@
 import { Effect, Stream } from "effect";
-import { testConfig } from "./test-config.js";
+import { testConfig } from "@tests/helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Effect / Stream runners

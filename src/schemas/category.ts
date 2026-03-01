@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Identifier } from "./common.js";
+import { Identifier } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Category — a grade category within a class

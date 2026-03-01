@@ -11,8 +11,8 @@ import type { School } from "@/schemas/school.js";
 import { School as SchoolSchema } from "@/schemas/school.js";
 import type { Session } from "@/schemas/session.js";
 import { Session as SessionSchema } from "@/schemas/session.js";
-import { fetchOne, type RequestContext } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/schools";
 

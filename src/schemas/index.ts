@@ -2,12 +2,12 @@
 // Schemas barrel — re-exports all entity schemas and enums
 // ---------------------------------------------------------------------------
 
-export { Address } from "./address.js";
-export { Agent } from "./agent.js";
-export { Assignment } from "./assignment.js";
-export { Attachment } from "./attachment.js";
-export { Category } from "./category.js";
-export { EdlinkClass } from "./class.js";
+export { Address } from "@/schemas/address.js";
+export { Agent } from "@/schemas/agent.js";
+export { Assignment } from "@/schemas/assignment.js";
+export { Attachment } from "@/schemas/attachment.js";
+export { Category } from "@/schemas/category.js";
+export { EdlinkClass } from "@/schemas/class.js";
 export {
   AgentRelationship,
   AssignmentAssigneeMode,
@@ -30,13 +30,13 @@ export {
   Subject,
   SubmissionFlag,
   SubmissionState,
-} from "./common.js";
-export { Course } from "./course.js";
-export { Demographics } from "./demographics.js";
-export { District } from "./district.js";
-export { Enrollment } from "./enrollment.js";
-export { EdlinkEvent, EdlinkEventSchema } from "./event.js";
-export { License } from "./license.js";
+} from "@/schemas/common.js";
+export { Course } from "@/schemas/course.js";
+export { Demographics } from "@/schemas/demographics.js";
+export { District } from "@/schemas/district.js";
+export { Enrollment } from "@/schemas/enrollment.js";
+export { EdlinkEvent, EdlinkEventSchema } from "@/schemas/event.js";
+export { License } from "@/schemas/license.js";
 export type {
   PaginatedAgentsResponse,
   PaginatedAssignmentsResponse,
@@ -52,7 +52,7 @@ export type {
   PaginatedSectionsResponse,
   PaginatedSessionsResponse,
   PaginatedSubmissionsResponse,
-} from "./paginated.js";
+} from "@/schemas/paginated.js";
 export {
   PaginatedAgentsSchema,
   PaginatedAssignmentsSchema,
@@ -69,11 +69,11 @@ export {
   PaginatedSectionsSchema,
   PaginatedSessionsSchema,
   PaginatedSubmissionsSchema,
-} from "./paginated.js";
-export { Person } from "./person.js";
-export { Product } from "./product.js";
-export { School } from "./school.js";
-export { Section } from "./section.js";
-export { Session } from "./session.js";
-export { Attempt, Submission } from "./submission.js";
-export { TokenData, TokenResponse, UserProfile } from "./token.js";
+} from "@/schemas/paginated.js";
+export { Person } from "@/schemas/person.js";
+export { Product } from "@/schemas/product.js";
+export { School } from "@/schemas/school.js";
+export { Section } from "@/schemas/section.js";
+export { Session } from "@/schemas/session.js";
+export { Attempt, Submission } from "@/schemas/submission.js";
+export { TokenData, TokenResponse, UserProfile } from "@/schemas/token.js";

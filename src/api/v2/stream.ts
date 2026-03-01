@@ -9,7 +9,7 @@ import {
   trimItems,
 } from "@/pagination.js";
 import { PaginatedResponseSchema } from "@/schemas/paginated.js";
-import type { EndpointOptions, RequestContext } from "./request.js";
+import type { EndpointOptions, RequestContext } from "@/api/v2/request.js";
 
 // ---------------------------------------------------------------------------
 // Generic paginated stream builder

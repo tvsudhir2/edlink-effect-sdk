@@ -3,8 +3,8 @@ import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import type { PaginationConfig } from "@/pagination.js";
 import type { License } from "@/schemas/license.js";
 import { License as LicenseSchema } from "@/schemas/license.js";
-import type { RequestContext } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import type { RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/licenses";
 

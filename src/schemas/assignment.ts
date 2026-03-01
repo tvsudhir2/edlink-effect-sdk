@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { Attachment } from "./attachment.js";
-import { AssignmentAssigneeMode, AssignmentState } from "./common.js";
+import { Attachment } from "@/schemas/attachment.js";
+import { AssignmentAssigneeMode, AssignmentState } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Assignment — a task or activity assigned to students

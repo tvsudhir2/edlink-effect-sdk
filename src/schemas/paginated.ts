@@ -1,18 +1,18 @@
 import { Schema } from "effect";
-import { Agent } from "./agent.js";
-import { Assignment } from "./assignment.js";
-import { Category } from "./category.js";
-import { EdlinkClass } from "./class.js";
-import { Course } from "./course.js";
-import { District } from "./district.js";
-import { Enrollment } from "./enrollment.js";
-import { EdlinkEvent } from "./event.js";
-import { License } from "./license.js";
-import { Person } from "./person.js";
-import { School } from "./school.js";
-import { Section } from "./section.js";
-import { Session } from "./session.js";
-import { Submission } from "./submission.js";
+import { Agent } from "@/schemas/agent.js";
+import { Assignment } from "@/schemas/assignment.js";
+import { Category } from "@/schemas/category.js";
+import { EdlinkClass } from "@/schemas/class.js";
+import { Course } from "@/schemas/course.js";
+import { District } from "@/schemas/district.js";
+import { Enrollment } from "@/schemas/enrollment.js";
+import { EdlinkEvent } from "@/schemas/event.js";
+import { License } from "@/schemas/license.js";
+import { Person } from "@/schemas/person.js";
+import { School } from "@/schemas/school.js";
+import { Section } from "@/schemas/section.js";
+import { Session } from "@/schemas/session.js";
+import { Submission } from "@/schemas/submission.js";
 
 // ---------------------------------------------------------------------------
 // Paginated response — generic schema factory

@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Gender, Race, ResidenceStatus } from "./common.js";
+import { Gender, Race, ResidenceStatus } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Demographics — demographic data attached to a Person

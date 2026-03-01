@@ -1,7 +1,7 @@
 import { Schema } from "effect";
-import { Address } from "./address.js";
-import { GradeLevel, Identifier } from "./common.js";
-import { Product } from "./product.js";
+import { Address } from "@/schemas/address.js";
+import { GradeLevel, Identifier } from "@/schemas/common.js";
+import { Product } from "@/schemas/product.js";
 
 // ---------------------------------------------------------------------------
 // School — an educational institution within a district

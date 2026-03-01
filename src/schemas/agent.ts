@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { AgentRelationship, Identifier } from "./common.js";
+import { AgentRelationship, Identifier } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Agent — a relationship between two people (parent, guardian, aide)

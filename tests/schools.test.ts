@@ -23,10 +23,10 @@ import {
   schoolFixture3,
   sessionFixture,
   sessionFixture2,
-} from "./helpers/fixtures.js";
-import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx } from "./helpers/test-config.js";
-import { BASE, collect, collectFail, fail, page, run, runFail, single } from "./helpers/test-utils.js";
+} from "@tests/helpers/fixtures.js";
+import { type MockHandler, makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
+import { makeCtx } from "@tests/helpers/test-config.js";
+import { BASE, collect, collectFail, fail, page, run, runFail, single } from "@tests/helpers/test-utils.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

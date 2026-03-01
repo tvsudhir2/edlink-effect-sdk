@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Identifier, SessionState, SessionType } from "./common.js";
+import { Identifier, SessionState, SessionType } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Session — a time period (semester, term, school year, etc.)

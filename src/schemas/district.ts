@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { Address } from "./address.js";
-import { Identifier } from "./common.js";
+import { Address } from "@/schemas/address.js";
+import { Identifier } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // District — top-level organizational unit

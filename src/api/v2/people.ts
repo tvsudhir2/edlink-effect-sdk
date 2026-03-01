@@ -15,8 +15,8 @@ import type { School } from "@/schemas/school.js";
 import { School as SchoolSchema } from "@/schemas/school.js";
 import type { Section } from "@/schemas/section.js";
 import { Section as SectionSchema } from "@/schemas/section.js";
-import { fetchOne, type RequestContext } from "./request.js";
-import { createPaginatedStream } from "./stream.js";
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/people";
 

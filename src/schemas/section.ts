@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Identifier, SectionState } from "./common.js";
+import { Identifier, SectionState } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Section — a subdivision within a class

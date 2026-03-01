@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { EnrollmentState, Identifier, Role } from "./common.js";
+import { EnrollmentState, Identifier, Role } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Enrollment — a person's association with a class

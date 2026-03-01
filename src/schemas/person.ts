@@ -1,7 +1,7 @@
 import { Schema } from "effect";
-import { GradeLevel, Identifier, Role } from "./common.js";
-import { Demographics } from "./demographics.js";
-import { Product } from "./product.js";
+import { GradeLevel, Identifier, Role } from "@/schemas/common.js";
+import { Demographics } from "@/schemas/demographics.js";
+import { Product } from "@/schemas/product.js";
 
 // ---------------------------------------------------------------------------
 // Person — a student, teacher, administrator, or other individual

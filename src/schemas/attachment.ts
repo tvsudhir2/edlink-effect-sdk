@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { AttachmentType } from "./common.js";
+import { AttachmentType } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Attachment — file/link/text attached to assignments or submissions

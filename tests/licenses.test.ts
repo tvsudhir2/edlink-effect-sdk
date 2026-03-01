@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { listLicenses } from "@/api/v2/licenses.js";
 import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
-import { licenseFixture, licenseFixture2, licenseFixture3 } from "./helpers/fixtures.js";
-import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx } from "./helpers/test-config.js";
-import { BASE, collect, collectFail, fail, page } from "./helpers/test-utils.js";
+import { licenseFixture, licenseFixture2, licenseFixture3 } from "@tests/helpers/fixtures.js";
+import { type MockHandler, makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
+import { makeCtx } from "@tests/helpers/test-config.js";
+import { BASE, collect, collectFail, fail, page } from "@tests/helpers/test-utils.js";
 
 // ============================================================================
 // listLicenses (paginated stream — list only, no fetch)

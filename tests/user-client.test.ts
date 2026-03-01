@@ -7,8 +7,8 @@ import { EdlinkApiError } from "@/errors.js";
 import { TokenData } from "@/schemas/token.js";
 import { InMemoryTokenStoreLive } from "@/token-store.js";
 import { EdlinkUserClient, EdlinkUserClientLive } from "@/user-client.js";
-import { tokenResponseFixture, userProfileFixture } from "./helpers/fixtures.js";
-import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
+import { tokenResponseFixture, userProfileFixture } from "@tests/helpers/fixtures.js";
+import { type MockHandler, makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
 
 // ---------------------------------------------------------------------------
 // Test setup

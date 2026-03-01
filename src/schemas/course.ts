@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { GradeLevel, Identifier, Subject } from "./common.js";
+import { GradeLevel, Identifier, Subject } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Course — a course definition (template for classes)

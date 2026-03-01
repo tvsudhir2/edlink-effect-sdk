@@ -15,8 +15,8 @@ import { exchangeCode, refreshToken } from "@/api/v2/oauth.js";
 import { fetchMyProfile } from "@/api/v2/profile.js";
 import type { EdlinkUserConfigData } from "@/config.js";
 import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
-import { makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx } from "./helpers/test-config.js";
+import { makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
+import { makeCtx } from "@tests/helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

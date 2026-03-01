@@ -1,6 +1,6 @@
 import { Schema } from "effect";
-import { ClassState, GradeLevel, Identifier, Subject } from "./common.js";
-import { Product } from "./product.js";
+import { ClassState, GradeLevel, Identifier, Subject } from "@/schemas/common.js";
+import { Product } from "@/schemas/product.js";
 
 // ---------------------------------------------------------------------------
 // EdlinkClass — a class within a school (named EdlinkClass to avoid JS reserved word)

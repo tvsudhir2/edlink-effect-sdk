@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { ProductState } from "./common.js";
+import { ProductState } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
 // Product — Edlink product / application metadata
