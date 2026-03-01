@@ -1,4 +1,5 @@
 import { Effect, Stream } from "effect";
+
 import { testConfig } from "@tests/helpers/test-config.js";
 
 // ---------------------------------------------------------------------------
@@ -6,16 +7,13 @@ import { testConfig } from "@tests/helpers/test-config.js";
 // ---------------------------------------------------------------------------
 
 /** Run an Effect, casting away the error channel (use in tests that expect success). */
-export const run = <A, E>(e: Effect.Effect<A, E>): Promise<A> =>
-  Effect.runPromise(e as Effect.Effect<A, never>);
+export const run = <A, E>(e: Effect.Effect<A, E>): Promise<A> => Effect.runPromise(e as Effect.Effect<A, never>);
 
 /** Run an Effect and return the error (use in tests that expect failure). */
-export const runFail = <A, E>(e: Effect.Effect<A, E>): Promise<E> =>
-  Effect.runPromise(Effect.flip(e));
+export const runFail = <A, E>(e: Effect.Effect<A, E>): Promise<E> => Effect.runPromise(Effect.flip(e));
 
 /** Collect all items from a Stream into an array (expects success). */
-export const collect = <A, E>(s: Stream.Stream<A, E>): Promise<readonly A[]> =>
-  run(Stream.runCollect(s));
+export const collect = <A, E>(s: Stream.Stream<A, E>): Promise<readonly A[]> => run(Stream.runCollect(s));
 
 /** Collect the error from a Stream (expects failure). */
 export const collectFail = <A, E>(s: Stream.Stream<A, E>): Promise<E> =>
@@ -38,8 +36,7 @@ export const fail = (status: number): { status: number; body: unknown } => ({
 export const single = (data: unknown) => ok({ $data: data });
 
 /** Build a paginated response envelope `{ $data: data, $next: next }`. */
-export const page = (data: unknown[], next: string | null = null) =>
-  ok({ $data: data, $next: next });
+export const page = (data: unknown[], next: string | null = null) => ok({ $data: data, $next: next });
 
 // ---------------------------------------------------------------------------
 // Shared test base URL (keeps tests in sync with testConfig)

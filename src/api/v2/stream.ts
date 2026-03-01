@@ -1,15 +1,10 @@
 import { Effect, Option, Redacted, Schema, Stream } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/unstable/http";
-import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
-import {
-  deriveNextUrl,
-  type PaginationConfig,
-  type PaginationState,
-  shouldContinue,
-  trimItems,
-} from "@/pagination.js";
-import { PaginatedResponseSchema } from "@/schemas/paginated.js";
+
 import type { EndpointOptions, RequestContext } from "@/api/v2/request.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import { deriveNextUrl, type PaginationConfig, type PaginationState, shouldContinue, trimItems } from "@/pagination.js";
+import { PaginatedResponseSchema } from "@/schemas/paginated.js";
 
 // ---------------------------------------------------------------------------
 // Generic paginated stream builder

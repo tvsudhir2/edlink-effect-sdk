@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+
 import { AttachmentType } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------

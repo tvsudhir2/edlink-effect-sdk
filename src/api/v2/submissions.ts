@@ -1,10 +1,11 @@
 import type { Effect, Stream } from "effect";
+
+import { createOne, fetchOne, type RequestContext, updateOne } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import type { PaginationConfig } from "@/pagination.js";
 import type { Submission } from "@/schemas/submission.js";
 import { Submission as SubmissionSchema } from "@/schemas/submission.js";
-import { createOne, fetchOne, type RequestContext, updateOne } from "@/api/v2/request.js";
-import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const submissionsPath = (classId: string, assignmentId: string) =>
   `/v2/graph/classes/${classId}/assignments/${assignmentId}/submissions`;

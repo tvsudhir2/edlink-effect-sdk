@@ -1,11 +1,12 @@
 import { Redacted } from "effect";
 import { describe, expect, it } from "vitest";
-import { fetchMyProfile } from "@/api/v2/profile.js";
-import type { EdlinkUserConfigData } from "@/config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+
 import { userProfileFixture } from "@tests/helpers/fixtures.js";
 import { makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
 import { fail, ok, run, runFail } from "@tests/helpers/test-utils.js";
+import { fetchMyProfile } from "@/api/v2/profile.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,8 +1,9 @@
 import { Effect, Schema } from "effect";
 import { HttpClient, HttpClientRequest } from "effect/unstable/http";
+
+import type { UserRequestContext } from "@/api/v2/oauth.js";
 import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import { UserProfile } from "@/schemas/token.js";
-import type { UserRequestContext } from "@/api/v2/oauth.js";
 
 // ---------------------------------------------------------------------------
 // User profile response schema

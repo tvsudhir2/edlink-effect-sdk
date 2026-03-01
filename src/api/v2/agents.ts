@@ -1,10 +1,11 @@
 import type { Effect, Stream } from "effect";
+
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import type { PaginationConfig } from "@/pagination.js";
 import type { Agent } from "@/schemas/agent.js";
 import { Agent as AgentSchema } from "@/schemas/agent.js";
-import { fetchOne, type RequestContext } from "@/api/v2/request.js";
-import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/agents";
 

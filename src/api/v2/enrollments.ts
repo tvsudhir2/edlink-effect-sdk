@@ -1,10 +1,11 @@
 import type { Effect, Stream } from "effect";
+
+import { fetchOne, type RequestContext } from "@/api/v2/request.js";
+import { createPaginatedStream } from "@/api/v2/stream.js";
 import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import type { PaginationConfig } from "@/pagination.js";
 import type { Enrollment } from "@/schemas/enrollment.js";
 import { Enrollment as EnrollmentSchema } from "@/schemas/enrollment.js";
-import { fetchOne, type RequestContext } from "@/api/v2/request.js";
-import { createPaginatedStream } from "@/api/v2/stream.js";
 
 const BASE = "/v2/graph/enrollments";
 

@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+
 import { AgentRelationship, Identifier } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------

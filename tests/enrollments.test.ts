@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { fetchEnrollment, listEnrollments } from "@/api/v2/enrollments.js";
-import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+
 import { enrollmentFixture, enrollmentFixture2, enrollmentFixture3 } from "@tests/helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
 import { makeCtx } from "@tests/helpers/test-config.js";
 import { BASE, collect, collectFail, fail, page, run, runFail, single } from "@tests/helpers/test-utils.js";
+import { fetchEnrollment, listEnrollments } from "@/api/v2/enrollments.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -1,15 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  fetchPerson,
-  listPeople,
-  listPersonAgents,
-  listPersonClasses,
-  listPersonDistricts,
-  listPersonEnrollments,
-  listPersonSchools,
-  listPersonSections,
-} from "@/api/v2/people.js";
-import { EdlinkApiError, EdlinkDecodeError } from '@/errors.js';
+
 import {
   agentFixture,
   agentFixture2,
@@ -30,6 +20,17 @@ import {
 import { type MockHandler, makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
 import { makeCtx } from "@tests/helpers/test-config.js";
 import { BASE, collect, collectFail, fail, page, run, runFail, single } from "@tests/helpers/test-utils.js";
+import {
+  fetchPerson,
+  listPeople,
+  listPersonAgents,
+  listPersonClasses,
+  listPersonDistricts,
+  listPersonEnrollments,
+  listPersonSchools,
+  listPersonSections,
+} from "@/api/v2/people.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 
 // ---------------------------------------------------------------------------
 // Helpers

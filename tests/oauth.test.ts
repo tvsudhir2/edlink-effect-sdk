@@ -1,11 +1,12 @@
 import { Redacted } from "effect";
 import { describe, expect, it } from "vitest";
-import { buildAuthorizationUrl, exchangeCode, refreshToken } from "@/api/v2/oauth.js";
-import type { EdlinkUserConfigData } from "@/config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+
 import { tokenResponseFixture } from "@tests/helpers/fixtures.js";
 import { makeTestHttpClient } from "@tests/helpers/mock-http-client.js";
 import { fail, ok, run, runFail } from "@tests/helpers/test-utils.js";
+import { buildAuthorizationUrl, exchangeCode, refreshToken } from "@/api/v2/oauth.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 
 // ---------------------------------------------------------------------------
 // Test config for User/OAuth API

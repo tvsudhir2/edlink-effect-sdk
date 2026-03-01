@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+
 import { EnrollmentState, Identifier, Role } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------

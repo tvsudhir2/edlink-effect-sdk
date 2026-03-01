@@ -5,7 +5,10 @@
     "actions": {
       "source": {
         "organizeImports": {
-          "level": "on"
+          "level": "on",
+          "options": {
+            "groups": [[":PACKAGE:", "!@tests/**"], ":BLANK_LINE:", [":ALIAS:", "@tests/**"], ":BLANK_LINE:", ":PATH:"]
+          }
         }
       }
     }

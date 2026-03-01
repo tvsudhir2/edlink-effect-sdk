@@ -1,5 +1,6 @@
 import { Redacted } from "effect";
 import type { HttpClient } from "effect/unstable/http";
+
 import type { RequestContext } from "@/api/v2/request.js";
 import type { EdlinkConfigData } from "@/config.js";
 

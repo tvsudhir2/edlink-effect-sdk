@@ -1,4 +1,5 @@
 import { Schema } from "effect";
+
 import { Gender, Race, ResidenceStatus } from "@/schemas/common.js";
 
 // ---------------------------------------------------------------------------
