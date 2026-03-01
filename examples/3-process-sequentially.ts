@@ -24,6 +24,7 @@ const processClass = Effect.fn("processClass")((cls: EdlinkClass, count: number)
   if (count === 1 || count % 10 === 0) {
     return Effect.log(`  #${count}  id=${cls.id}  name=${cls.name ?? "(unnamed)"}`);
   }
+
   return Effect.void;
 });
 

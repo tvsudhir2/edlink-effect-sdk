@@ -21,9 +21,7 @@ const program = Effect.gen(function* () {
 
   const classId = yield* Config.string("CLASS_ID");
   const client = yield* EdlinkClient;
-
   const assignments = yield* client.assignments.list(classId).pipe(Stream.runCollect);
-
   yield* Effect.log(`Fetched ${assignments.length} assignments`);
 
   yield* Effect.forEach(assignments.slice(0, 5), (a, idx) =>

@@ -18,9 +18,7 @@ const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 1: Fetch classes — default 3-page limit");
 
   const client = yield* EdlinkClient;
-
   const classes = yield* client.classes.list().pipe(Stream.runCollect);
-
   yield* Effect.log(`Fetched ${classes.length} classes`);
 
   yield* Effect.forEach(classes.slice(0, 3), (cls, idx) =>

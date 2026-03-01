@@ -18,9 +18,7 @@ const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 2: Fetch classes — max 50 records");
 
   const client = yield* EdlinkClient;
-
   const classes = yield* client.classes.list({ type: "records", maxRecords: 50 }).pipe(Stream.runCollect);
-
   yield* Effect.log(`Fetched ${classes.length} classes (capped at 50)`);
 
   yield* Effect.forEach(classes.slice(0, 3), (cls, idx) =>
