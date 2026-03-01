@@ -1,8 +1,8 @@
 import { Effect, Redacted, Schema } from "effect";
 import { type HttpBody, HttpClient, HttpClientRequest } from "effect/unstable/http";
-import type { EdlinkUserConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import { TokenResponse } from "../../schemas/token.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import { TokenResponse } from "@/schemas/token.js";
 
 // ---------------------------------------------------------------------------
 // Shared context for user-level API calls

@@ -1,10 +1,10 @@
 import type { Effect, Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import type { District } from "../../schemas/district.js";
-import { District as DistrictSchema } from "../../schemas/district.js";
-import type { Person } from "../../schemas/person.js";
-import { Person as PersonSchema } from "../../schemas/person.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import type { District } from "@/schemas/district.js";
+import { District as DistrictSchema } from "@/schemas/district.js";
+import type { Person } from "@/schemas/person.js";
+import { Person as PersonSchema } from "@/schemas/person.js";
 import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

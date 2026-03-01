@@ -1,8 +1,8 @@
 import type { Effect, Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import type { Agent } from "../../schemas/agent.js";
-import { Agent as AgentSchema } from "../../schemas/agent.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import type { Agent } from "@/schemas/agent.js";
+import { Agent as AgentSchema } from "@/schemas/agent.js";
 import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

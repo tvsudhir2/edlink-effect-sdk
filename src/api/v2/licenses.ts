@@ -1,8 +1,8 @@
 import type { Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import type { License } from "../../schemas/license.js";
-import { License as LicenseSchema } from "../../schemas/license.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import type { License } from "@/schemas/license.js";
+import { License as LicenseSchema } from "@/schemas/license.js";
 import type { RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

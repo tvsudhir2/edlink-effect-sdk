@@ -9,12 +9,12 @@
 import { Effect, Redacted } from "effect";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
-import { fetchAgent } from "../src/api/v2/agents.js";
-import { updateAssignment } from "../src/api/v2/assignments.js";
-import { exchangeCode, refreshToken } from "../src/api/v2/oauth.js";
-import { fetchMyProfile } from "../src/api/v2/profile.js";
-import type { EdlinkUserConfigData } from "../src/config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { fetchAgent } from "@/api/v2/agents.js";
+import { updateAssignment } from "@/api/v2/assignments.js";
+import { exchangeCode, refreshToken } from "@/api/v2/oauth.js";
+import { fetchMyProfile } from "@/api/v2/profile.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import { makeTestHttpClient } from "./helpers/mock-http-client.js";
 import { makeCtx } from "./helpers/test-config.js";
 

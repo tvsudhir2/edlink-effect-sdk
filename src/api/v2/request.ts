@@ -1,7 +1,7 @@
 import { Effect, Redacted, Schema } from "effect";
 import { type HttpBody, HttpClient, HttpClientRequest } from "effect/unstable/http";
-import type { EdlinkConfigData } from "../../config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
+import type { EdlinkConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 
 // ---------------------------------------------------------------------------
 // Shared option types

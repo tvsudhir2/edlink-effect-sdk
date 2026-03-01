@@ -1,13 +1,13 @@
 import { Effect, Layer, Option, ServiceMap } from "effect";
 import { HttpClient } from "effect/unstable/http";
-import type { UserRequestContext } from "./api/v2/oauth.js";
-import * as OAuth from "./api/v2/oauth.js";
-import * as ProfileApi from "./api/v2/profile.js";
-import { EdlinkUserConfig } from "./config.js";
-import { EdlinkApiError, type EdlinkDecodeError } from "./errors.js";
-import type { TokenResponse, UserProfile } from "./schemas/token.js";
-import { TokenData } from "./schemas/token.js";
-import { TokenStore } from "./token-store.js";
+import type { UserRequestContext } from "@/api/v2/oauth.js";
+import * as OAuth from "@/api/v2/oauth.js";
+import * as ProfileApi from "@/api/v2/profile.js";
+import { EdlinkUserConfig } from "@/config.js";
+import { EdlinkApiError, type EdlinkDecodeError } from "@/errors.js";
+import type { TokenResponse, UserProfile } from "@/schemas/token.js";
+import { TokenData } from "@/schemas/token.js";
+import { TokenStore } from "@/token-store.js";
 
 // ---------------------------------------------------------------------------
 // Error union shorthand

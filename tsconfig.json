@@ -11,8 +11,12 @@
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
     "exactOptionalPropertyTypes": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": ["src/**/*", "examples/**/*"],
+  "include": ["src/**/*", "examples/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
 }

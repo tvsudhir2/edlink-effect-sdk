@@ -1,4 +1,3 @@
-import { Effect, Stream } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   fetchSection,
@@ -7,8 +6,8 @@ import {
   listSectionStudents,
   listSections,
   listSectionTeachers,
-} from "../src/api/v2/sections.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+} from "@/api/v2/sections.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import {
   enrollmentFixture,
   enrollmentFixture2,
@@ -19,24 +18,14 @@ import {
   sectionFixture3,
 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx, testConfig } from "./helpers/test-config.js";
+import { makeCtx } from "./helpers/test-config.js";
+import { BASE, collect, collectFail, fail, page, run, runFail, single } from "./helpers/test-utils.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 const SEC = "sec-100";
-const BASE = testConfig.apiBaseUrl;
-
-const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
-const runFail = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(Effect.flip(e));
-const collect = <A, E>(s: Stream.Stream<A, E>) => run(Stream.runCollect(s));
-const collectFail = <A, E>(s: Stream.Stream<A, E>) => Effect.runPromise(Effect.flip(Stream.runCollect(s)));
-
-const ok = (body: unknown) => ({ status: 200, body });
-const fail = (status: number) => ({ status, body: { error: "err" } });
-const single = (data: unknown) => ok({ $data: data });
-const page = (data: unknown[], next: string | null = null) => ok({ $data: data, $next: next });
 
 // ============================================================================
 // fetchSection

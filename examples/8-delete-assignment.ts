@@ -11,8 +11,8 @@
 
 import { NodeRuntime } from "@effect/platform-node";
 import { Config, Duration, Effect } from "effect";
-import { EdlinkClient } from "../src/client.js";
-import { EdlinkLive } from "../src/layers.js";
+import { EdlinkClient } from "@/client.js";
+import { EdlinkLive } from "@/layers.js";
 
 const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 8: Delete an assignment");

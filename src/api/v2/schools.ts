@@ -1,16 +1,16 @@
 import type { Effect, Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import type { EdlinkClass } from "../../schemas/class.js";
-import { EdlinkClass as ClassSchema } from "../../schemas/class.js";
-import type { Course } from "../../schemas/course.js";
-import { Course as CourseSchema } from "../../schemas/course.js";
-import type { Person } from "../../schemas/person.js";
-import { Person as PersonSchema } from "../../schemas/person.js";
-import type { School } from "../../schemas/school.js";
-import { School as SchoolSchema } from "../../schemas/school.js";
-import type { Session } from "../../schemas/session.js";
-import { Session as SessionSchema } from "../../schemas/session.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import type { EdlinkClass } from "@/schemas/class.js";
+import { EdlinkClass as ClassSchema } from "@/schemas/class.js";
+import type { Course } from "@/schemas/course.js";
+import { Course as CourseSchema } from "@/schemas/course.js";
+import type { Person } from "@/schemas/person.js";
+import { Person as PersonSchema } from "@/schemas/person.js";
+import type { School } from "@/schemas/school.js";
+import { School as SchoolSchema } from "@/schemas/school.js";
+import type { Session } from "@/schemas/session.js";
+import { Session as SessionSchema } from "@/schemas/session.js";
 import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

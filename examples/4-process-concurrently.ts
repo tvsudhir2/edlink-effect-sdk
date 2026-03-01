@@ -15,9 +15,9 @@
 
 import { NodeRuntime } from "@effect/platform-node";
 import { Effect, Ref, Stream } from "effect";
-import { EdlinkClient } from "../src/client.js";
-import { EdlinkLive } from "../src/layers.js";
-import type { EdlinkClass } from "../src/schemas/class.js";
+import { EdlinkClient } from "@/client.js";
+import { EdlinkLive } from "@/layers.js";
+import type { EdlinkClass } from "@/schemas/class.js";
 
 const processClass = Effect.fn("processClass")((cls: EdlinkClass, countRef: Ref.Ref<number>) =>
   Effect.gen(function* () {

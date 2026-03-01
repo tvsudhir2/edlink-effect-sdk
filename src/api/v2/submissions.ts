@@ -1,8 +1,8 @@
 import type { Effect, Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import type { Submission } from "../../schemas/submission.js";
-import { Submission as SubmissionSchema } from "../../schemas/submission.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import type { Submission } from "@/schemas/submission.js";
+import { Submission as SubmissionSchema } from "@/schemas/submission.js";
 import { createOne, fetchOne, type RequestContext, updateOne } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

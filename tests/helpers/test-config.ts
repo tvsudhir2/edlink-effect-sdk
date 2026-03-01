@@ -1,7 +1,7 @@
 import { Redacted } from "effect";
 import type { HttpClient } from "effect/unstable/http";
-import type { RequestContext } from "../../src/api/v2/request.js";
-import type { EdlinkConfigData } from "../../src/config.js";
+import type { RequestContext } from "@/api/v2/request.js";
+import type { EdlinkConfigData } from "@/config.js";
 
 // ---------------------------------------------------------------------------
 // Shared test configuration — reused across all domain test files

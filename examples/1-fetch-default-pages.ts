@@ -10,8 +10,8 @@
 
 import { NodeRuntime } from "@effect/platform-node";
 import { Duration, Effect, Stream } from "effect";
-import { EdlinkClient } from "../src/client.js";
-import { EdlinkLive } from "../src/layers.js";
+import { EdlinkClient } from "@/client.js";
+import { EdlinkLive } from "@/layers.js";
 
 const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 1: Fetch classes — default 3-page limit");

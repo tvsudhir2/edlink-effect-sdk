@@ -1,9 +1,9 @@
 import { Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
-import { EdlinkClientLive } from "./client.js";
-import { EdlinkConfig, EdlinkUserConfig } from "./config.js";
-import { InMemoryTokenStoreLive } from "./token-store.js";
-import { EdlinkUserClientLive } from "./user-client.js";
+import { EdlinkClientLive } from "@/client.js";
+import { EdlinkConfig, EdlinkUserConfig } from "@/config.js";
+import { InMemoryTokenStoreLive } from "@/token-store.js";
+import { EdlinkUserClientLive } from "@/user-client.js";
 
 // ---------------------------------------------------------------------------
 // Composed layer — single `Effect.provide(EdlinkLive)` in consumer code

@@ -1,26 +1,10 @@
-import { Effect, Stream } from "effect";
 import { describe, expect, it } from "vitest";
-import { fetchAgent, listAgents } from "../src/api/v2/agents.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { fetchAgent, listAgents } from "@/api/v2/agents.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import { agentFixture, agentFixture2, agentFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx, testConfig } from "./helpers/test-config.js";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const BASE = testConfig.apiBaseUrl;
-
-const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
-const runFail = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(Effect.flip(e));
-const collect = <A, E>(s: Stream.Stream<A, E>) => run(Stream.runCollect(s));
-const collectFail = <A, E>(s: Stream.Stream<A, E>) => Effect.runPromise(Effect.flip(Stream.runCollect(s)));
-
-const ok = (body: unknown) => ({ status: 200, body });
-const fail = (status: number) => ({ status, body: { error: "err" } });
-const single = (data: unknown) => ok({ $data: data });
-const page = (data: unknown[], next: string | null = null) => ok({ $data: data, $next: next });
+import { makeCtx } from "./helpers/test-config.js";
+import { BASE, collect, collectFail, fail, page, run, runFail, single } from "./helpers/test-utils.js";
 
 // ============================================================================
 // fetchAgent

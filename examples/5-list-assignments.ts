@@ -12,8 +12,8 @@
 
 import { NodeRuntime } from "@effect/platform-node";
 import { Config, Duration, Effect, Stream } from "effect";
-import { EdlinkClient } from "../src/client.js";
-import { EdlinkLive } from "../src/layers.js";
+import { EdlinkClient } from "@/client.js";
+import { EdlinkLive } from "@/layers.js";
 
 const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 5: List assignments for a class");

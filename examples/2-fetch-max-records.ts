@@ -10,8 +10,8 @@
 
 import { NodeRuntime } from "@effect/platform-node";
 import { Effect, Stream } from "effect";
-import { EdlinkClient } from "../src/client.js";
-import { EdlinkLive } from "../src/layers.js";
+import { EdlinkClient } from "@/client.js";
+import { EdlinkLive } from "@/layers.js";
 
 const program = Effect.gen(function* () {
   yield* Effect.logInfo("Example 2: Fetch classes — max 50 records");

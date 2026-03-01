@@ -2,9 +2,9 @@
 // edlink-effect-sdk — public API
 // ---------------------------------------------------------------------------
 
-export type { AuthorizationUrlOptions, UserRequestContext } from "./api/v2/oauth.js";
+export type { AuthorizationUrlOptions, UserRequestContext } from "@/api/v2/oauth.js";
 // API helpers — request context types
-export type { EndpointOptions, RequestContext } from "./api/v2/request.js";
+export type { EndpointOptions, RequestContext } from "@/api/v2/request.js";
 export type {
   AgentsServiceType,
   AssignmentsServiceType,
@@ -20,7 +20,7 @@ export type {
   SectionsServiceType,
   SessionsServiceType,
   SubmissionsServiceType,
-} from "./client.js";
+} from "@/client.js";
 // Client service & layer — aggregate facade + individual sub-service classes
 export {
   AgentsService,
@@ -39,12 +39,12 @@ export {
   SectionsService,
   SessionsService,
   SubmissionsService,
-} from "./client.js";
-export type { EdlinkConfigData, EdlinkUserConfigData } from "./config.js";
-export { EdlinkConfig, EdlinkUserConfig } from "./config.js";
+} from "@/client.js";
+export type { EdlinkConfigData, EdlinkUserConfigData } from "@/config.js";
+export { EdlinkConfig, EdlinkUserConfig } from "@/config.js";
 // Errors
-export { EdlinkApiError, EdlinkDecodeError } from "./errors.js";
-export { EdlinkLive, EdlinkUserLive } from "./layers.js";
+export { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+export { EdlinkLive, EdlinkUserLive } from "@/layers.js";
 // Pagination
 export type {
   PageResultOptions,
@@ -53,8 +53,8 @@ export type {
   PaginateByRecords,
   PaginationConfig,
   PaginationState,
-} from "./pagination.js";
-export { deriveNextUrl, shouldContinue, trimItems } from "./pagination.js";
+} from "@/pagination.js";
+export { deriveNextUrl, shouldContinue, trimItems } from "@/pagination.js";
 export type {
   PaginatedAgentsResponse,
   PaginatedAssignmentsResponse,
@@ -70,7 +70,7 @@ export type {
   PaginatedSectionsResponse,
   PaginatedSessionsResponse,
   PaginatedSubmissionsResponse,
-} from "./schemas/index.js";
+} from "@/schemas/index.js";
 // All schemas & types
 export {
   Address,
@@ -137,7 +137,7 @@ export {
   // Token / User API
   TokenResponse,
   UserProfile,
-} from "./schemas/index.js";
-export type { TokenStoreShape } from "./token-store.js";
-export { InMemoryTokenStoreLive, TokenStore } from "./token-store.js";
-export { EdlinkUserClient, EdlinkUserClientLive } from "./user-client.js";
+} from "@/schemas/index.js";
+export type { TokenStoreShape } from "@/token-store.js";
+export { InMemoryTokenStoreLive, TokenStore } from "@/token-store.js";
+export { EdlinkUserClient, EdlinkUserClientLive } from "@/user-client.js";

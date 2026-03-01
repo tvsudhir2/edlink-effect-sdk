@@ -1,12 +1,12 @@
 import { Effect, Layer, Option, Redacted } from "effect";
 import { HttpClient } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
-import type { EdlinkUserConfigData } from "../src/config.js";
-import { EdlinkUserConfig } from "../src/config.js";
-import { EdlinkApiError } from "../src/errors.js";
-import { TokenData } from "../src/schemas/token.js";
-import { InMemoryTokenStoreLive } from "../src/token-store.js";
-import { EdlinkUserClient, EdlinkUserClientLive } from "../src/user-client.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkUserConfig } from "@/config.js";
+import { EdlinkApiError } from "@/errors.js";
+import { TokenData } from "@/schemas/token.js";
+import { InMemoryTokenStoreLive } from "@/token-store.js";
+import { EdlinkUserClient, EdlinkUserClientLive } from "@/user-client.js";
 import { tokenResponseFixture, userProfileFixture } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
 

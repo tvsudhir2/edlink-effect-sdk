@@ -1,10 +1,11 @@
-import { Effect, Redacted } from "effect";
+import { Redacted } from "effect";
 import { describe, expect, it } from "vitest";
-import { fetchMyProfile } from "../src/api/v2/profile.js";
-import type { EdlinkUserConfigData } from "../src/config.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { fetchMyProfile } from "@/api/v2/profile.js";
+import type { EdlinkUserConfigData } from "@/config.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import { userProfileFixture } from "./helpers/fixtures.js";
 import { makeTestHttpClient } from "./helpers/mock-http-client.js";
+import { fail, ok, run, runFail } from "./helpers/test-utils.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,12 +20,6 @@ const userConfig: EdlinkUserConfigData = {
 
 const BASE_URL = userConfig.apiBaseUrl;
 const ACCESS_TOKEN = "user-access-token-123";
-
-const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
-const runFail = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(Effect.flip(e));
-
-const ok = (body: unknown) => ({ status: 200, body });
-const fail = (status: number) => ({ status, body: { error: "err" } });
 
 // ============================================================================
 // fetchMyProfile

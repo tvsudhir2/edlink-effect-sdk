@@ -1,7 +1,7 @@
 import type { Effect, Stream } from "effect";
-import type { EdlinkApiError, EdlinkDecodeError } from "../../errors.js";
-import type { PaginationConfig } from "../../pagination.js";
-import { EdlinkEvent } from "../../schemas/event.js";
+import type { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
+import type { PaginationConfig } from "@/pagination.js";
+import { EdlinkEvent } from "@/schemas/event.js";
 import { fetchOne, type RequestContext } from "./request.js";
 import { createPaginatedStream } from "./stream.js";
 

@@ -1,23 +1,10 @@
-import { Effect, Stream } from "effect";
 import { describe, expect, it } from "vitest";
-import { listLicenses } from "../src/api/v2/licenses.js";
-import { EdlinkApiError, EdlinkDecodeError } from "../src/errors.js";
+import { listLicenses } from "@/api/v2/licenses.js";
+import { EdlinkApiError, EdlinkDecodeError } from "@/errors.js";
 import { licenseFixture, licenseFixture2, licenseFixture3 } from "./helpers/fixtures.js";
 import { type MockHandler, makeTestHttpClient } from "./helpers/mock-http-client.js";
-import { makeCtx, testConfig } from "./helpers/test-config.js";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const BASE = testConfig.apiBaseUrl;
-
-const run = <A, E>(e: Effect.Effect<A, E>) => Effect.runPromise(e as Effect.Effect<A, never>);
-const collect = <A, E>(s: Stream.Stream<A, E>) => run(Stream.runCollect(s));
-const collectFail = <A, E>(s: Stream.Stream<A, E>) => Effect.runPromise(Effect.flip(Stream.runCollect(s)));
-
-const fail = (status: number) => ({ status, body: { error: "err" } });
-const page = (data: unknown[], next: string | null = null) => ({ status: 200, body: { $data: data, $next: next } });
+import { makeCtx } from "./helpers/test-config.js";
+import { BASE, collect, collectFail, fail, page } from "./helpers/test-utils.js";
 
 // ============================================================================
 // listLicenses (paginated stream — list only, no fetch)
